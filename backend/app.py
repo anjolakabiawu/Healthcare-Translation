@@ -66,7 +66,7 @@ def serve_static(path):
 def translate():
     data = request.json
     text = data.get('text')
-    target_language = data.get('target_language', 'EN') # Default to English
+    target_language = data.get('target_language', 'EN-US') # Default to English
 
     # Using DEEPSEEK for translation
     if not text:

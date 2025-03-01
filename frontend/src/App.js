@@ -14,12 +14,37 @@ console.log("Backend URL:", process.env.REACT_APP_BACKEND_URL);
 
 const getLanguageCode = (language) => {
   const languageCodes = {
-    English: "EN",
-    Spanish: "ES",
-    French: "FR",
+    // Source and Target Languages
+    Arabic: "AR",
+    Bulgarian: "BG",
+    Czech: "CS",
+    Danish: "DA",
     German: "DE",
-    Chinese: "ZH",
-    Hindi: "HI",
+    Greek: "EL",
+    English: "EN-US", // Use "EN-US" or "EN-GB"
+    Spanish: "ES",
+    Estonian: "ET",
+    Finnish: "FI",
+    French: "FR",
+    Hungarian: "HU",
+    Indonesian: "ID",
+    Italian: "IT",
+    Japanese: "JA",
+    Korean: "KO",
+    Lithuanian: "LT",
+    Latvian: "LV",
+    NorwegianBokmål: "NB",
+    Dutch: "NL",
+    Polish: "PL",
+    Portuguese: "PT-PT", // Use "PT-PT" or "PT-BR"
+    Romanian: "RO",
+    Russian: "RU",
+    Slovak: "SK",
+    Slovenian: "SL",
+    Swedish: "SV",
+    Turkish: "TR",
+    Ukrainian: "UK",
+    Chinese: "ZH-HANS", // Use "ZH-HANS" or "ZH-HANT"
   };
   return languageCodes[language] || 'EN-US'; // Default to English
 };
@@ -96,12 +121,36 @@ function App() {
   const [showGuide, setShowGuide] = useState(false);
 
   const languageCodes = {
-    English: "EN",
-    Spanish: "ES",
-    French: "FR",
+    English: "EN-US",
+    Arabic: "AR",
+    Bulgarian: "BG",
+    Czech: "CS",
+    Danish: "DA",
     German: "DE",
-    Chinese: "ZH",
-    Hindi: "HI",
+    Greek: "EL",
+    Spanish: "ES",
+    Estonian: "ET",
+    Finnish: "FI",
+    French: "FR",
+    Hungarian: "HU",
+    Indonesian: "ID",
+    Italian: "IT",
+    Japanese: "JA",
+    Korean: "KO",
+    Lithuanian: "LT",
+    Latvian: "LV",
+    NorwegianBokmål: "NB",
+    Dutch: "NL",
+    Polish: "PL",
+    Portuguese: "PT-PT", // Use "PT-PT" or "PT-BR"
+    Romanian: "RO",
+    Russian: "RU",
+    Slovak: "SK",
+    Slovenian: "SL",
+    Swedish: "SV",
+    Turkish: "TR",
+    Ukrainian: "UK",
+    Chinese: "ZH-HANS", // Use "ZH-HANS" or "ZH-HANT"
   };
 
   const handleTranslate = async () => {
@@ -115,6 +164,7 @@ function App() {
         return;
       }
 
+      console.log("Sending translation request...")
       const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}translate`, {
         text: transcript,
         target_language: targetLanguageCode, // Use the mapped code
@@ -153,12 +203,21 @@ function App() {
             value={inputLanguage}
             onChange={(e) => setInputLanguage(e.target.value)}
           >
-              <option value={"en-US"}>English</option>
-              <option value={"es-ES"}>Spanish</option>
-              <option value={"fr-FR"}>French</option>
-              <option value={"de-DE"}>German</option>
-              <option value={"zh-CN"}>Chinese</option>
-              <option value={"hi-IN"}>Hindi</option>
+              <option value="en-US">English (US)</option>
+              <option value="es-ES">Spanish</option>
+              <option value="fr-FR">French</option>
+              <option value="de-DE">German</option>
+              <option value="zh-HANS">Chinese (Simplified)</option>
+              <option value="ar-SA">Arabic</option>
+              <option value="ja-JP">Japanese</option>
+              <option value="ru-RU">Russian</option>
+              <option value="pt-PT">Portuguese (Portugal)</option>
+              <option value="it-IT">Italian</option>
+              <option value="ko-KR">Korean</option>
+              <option value="tr-TR">Turkish</option>
+              <option value="nl-NL">Dutch</option>
+              <option value="sv-SE">Swedish</option>
+              <option value="pl-PL">Polish</option>
             </select>
         </div>
 
@@ -179,12 +238,21 @@ function App() {
             value={targetLanguage}
             onChange={(e) => setTargetLanguage(e.target.value)}
           >
-            <option value={"English"}>English</option>
-            <option value={"Spanish"}>Spanish</option>
-            <option value={"French"}>French</option>
-            <option value={"German"}>German</option>
-            <option value={"Chinese"}>Chinese</option>
-            <option value={"Hindi"}>Hindi</option>
+            <option value="English">English (US)</option>
+            <option value="Spanish">Spanish</option>
+            <option value="French">French</option>
+            <option value="German">German</option>
+            <option value="Chinese">Chinese (Simplified)</option>
+            <option value="Arabic">Arabic</option>
+            <option value="Japanese">Japanese</option>
+            <option value="Russian">Russian</option>
+            <option value="Portuguese">Portuguese (Portugal)</option>
+            <option value="Italian">Italian</option>
+            <option value="Korean">Korean</option>
+            <option value="Turkish">Turkish</option>
+            <option value="Dutch">Dutch</option>
+            <option value="Swedish">Swedish</option>
+            <option value="Polish">Polish</option>
           </select>
         </div>
 
