@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import axios from 'axios';
 import { Button, Modal } from 'react-bootstrap';
 import logo from './logo.svg';
@@ -10,46 +10,92 @@ const speakText = (text, language) => {
   window.speechSynthesis.speak(utterance);
 };
 
+console.log("Backend URL:", process.env.REACT_APP_BACKEND_URL);
+
 const getLanguageCode = (language) => {
   const languageCodes = {
-    English: 'en-US',
-    Spanish: 'es-ES',
-    French: 'fr-FR',
-    German: 'de-DE',
-    Chinese: 'zh-CN',
-    Hindi: 'hi-IN',
+    English: "EN",
+    Spanish: "ES",
+    French: "FR",
+    German: "DE",
+    Chinese: "ZH",
+    Hindi: "HI",
   };
-  return languageCodes[language] || 'es-US'; // Default to English
+  return languageCodes[language] || 'EN-US'; // Default to English
 };
 
-const SpeechToText = ({ setTranscript, inputLanguage }) => {
-  const [isListening, setIsListening] = useState(false);
+const SpeechToText = ({ setTranscript, inputLanguage, setError }) => {
+  const [isRecording, setIsRecording] = useState(false);
+  const mediaRecorderRef = useRef(null); // Store the MediaRecorder instance
+  const audioChunksRef = useRef([]); // Store audio chunks
 
-  const startListening = () => {
-    setIsListening(true);
+  const startRecording = async () => {
+    setIsRecording(true);
+    audioChunksRef.current = []; // Reset audio chunks
+
     try {
-      // Use the Web Speech API for speech-to-text
-      const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-      recognition.lang = inputLanguage;
-      recognition.interimResults = false;
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = mediaRecorder; // Store the MediaRecorder instance
 
-      recognition.onresult = (event) => {
-        const transcript = event.results[0][0].transcript;
-        setTranscript(transcript);
+      mediaRecorder.ondataavailable = (event) => {
+        audioChunksRef.current.push(event.data); // Store audio chunks
       };
 
-      recognition.start();
+      mediaRecorder.onstop = async () => {
+        setIsRecording(false);
+
+        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
+        console.log("Recorded Audio Blob:", audioBlob);
+
+        const formData = new FormData();
+        formData.append('audio', audioBlob);
+        formData.append('language', inputLanguage);
+
+        console.log("Sending audio file to backend...");
+
+        try {
+          const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}transcribe`, formData, {
+              headers: { 'Content-Type': 'multipart/form-data' },
+          });
+
+          console.log("Backend Response:", response.data);
+          if (response.data.transcript) {
+              setTranscript(response.data.transcript);
+          } else {
+              setError('No transcription received.');
+          }
+      } catch (error) {
+          console.error('Error sending audio to backend:', error);
+          setError('Speech-to-text failed.');
+      }
+
+
+        // Stop all tracks in the stream
+        stream.getTracks().forEach(track => track.stop());
+      };
+
+      mediaRecorder.start(); // Start recording
     } catch (error) {
-      console.error('Error transcribing speech:', error);
-    } finally {
-      setIsListening(false);
+      console.error('Error accessing microphone:', error);
+      setIsRecording(false);
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+      mediaRecorderRef.current.stop(); // Stop recording
+      setIsRecording(false);
     }
   };
 
   return (
     <div>
-      <button onClick={startListening} disabled={isListening}>
-        {isListening ? 'Listening...' : 'Start Speaking'}
+      <button onClick={startRecording} disabled={isRecording}>
+        {isRecording ? 'Recording...' : 'Start Speaking'}
+      </button>
+      <button onClick={stopRecording} disabled={!isRecording}>
+        Stop Recording
       </button>
     </div>
   );
@@ -65,25 +111,43 @@ function App() {
   const [history, setHistory] = useState([]); // Translation history
   const [showGuide, setShowGuide] = useState(false);
 
+  const languageCodes = {
+    English: "EN",
+    Spanish: "ES",
+    French: "FR",
+    German: "DE",
+    Chinese: "ZH",
+    Hindi: "HI",
+  };
+
   const handleTranslate = async () => {
     setIsLoading(true);
     setError('');
     try {
-      const response = await axios.post('/translate', {
+      const targetLanguageCode = languageCodes[targetLanguage];
+      if (!transcript.trim()) {
+        setError('No text provided for translation.');
+        setIsLoading(false);
+        return;
+      }
+
+      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}translate`, {
         text: transcript,
-        target_language: targetLanguage, // Use selected language
+        target_language: targetLanguageCode, // Use the mapped code
       });
+
+      console.log("Backend response:", response.data);
       const translatedText = response.data.translated_text;
       setTranslatedText(response.data.translated_text);
       setHistory([...history, { input: transcript, output: translatedText }]);
     } catch (error) {
+      console.error("Error details:", error.response);
       setError('Translation failed. Please try again.');
       console.error('Error translating text:', error);
     } finally {
       setIsLoading(false);
     }
   };
-
 
   return (
     <div className="App">
