@@ -26,65 +26,49 @@ const getLanguageCode = (language) => {
 
 const SpeechToText = ({ setTranscript, inputLanguage, setError }) => {
   const [isRecording, setIsRecording] = useState(false);
-  const mediaRecorderRef = useRef(null); // Store the MediaRecorder instance
-  const audioChunksRef = useRef([]); // Store audio chunks
+  const [recognition, setRecognition] = useState(null);
 
-  const startRecording = async () => {
+  const startRecording = () => {
     setIsRecording(true);
-    audioChunksRef.current = []; // Reset audio chunks
+    setError('');
 
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const mediaRecorder = new MediaRecorder(stream);
-      mediaRecorderRef.current = mediaRecorder; // Store the MediaRecorder instance
-
-      mediaRecorder.ondataavailable = (event) => {
-        audioChunksRef.current.push(event.data); // Store audio chunks
-      };
-
-      mediaRecorder.onstop = async () => {
-        setIsRecording(false);
-
-        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
-        console.log("Recorded Audio Blob:", audioBlob);
-
-        const formData = new FormData();
-        formData.append('audio', audioBlob);
-        formData.append('language', inputLanguage);
-
-        console.log("Sending audio file to backend...");
-
-        try {
-          const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}transcribe`, formData, {
-              headers: { 'Content-Type': 'multipart/form-data' },
-          });
-
-          console.log("Backend Response:", response.data);
-          if (response.data.transcript) {
-              setTranscript(response.data.transcript);
-          } else {
-              setError('No transcription received.');
-          }
-      } catch (error) {
-          console.error('Error sending audio to backend:', error);
-          setError('Speech-to-text failed.');
-      }
-
-
-        // Stop all tracks in the stream
-        stream.getTracks().forEach(track => track.stop());
-      };
-
-      mediaRecorder.start(); // Start recording
-    } catch (error) {
-      console.error('Error accessing microphone:', error);
+    // Check if the browser supports the Web Speech API
+    if (!('webkitSpeechRecognition' in window)) {
+      setError('Your browser does not support speech recognition.');
       setIsRecording(false);
+      return;
     }
+
+    // Create a new SpeechRecognition instance
+    const SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition;
+    const recognition = new SpeechRecognition();
+    recognition.continuous = false; // Stop after one sentence
+    recognition.interimResults = false; // Only return final results
+    recognition.lang = inputLanguage; // Set the language
+
+    // Event handler for when speech is recognized
+    recognition.onresult = (event) => {
+      const transcript = event.results[0][0].transcript;
+      console.log("Recognized speech:", transcript);
+      setTranscript(transcript);
+      setIsRecording(false);
+    };
+
+    // Event handler for errors
+    recognition.onerror = (event) => {
+      console.error("Speech recognition error:", event.error);
+      setError('Speech recognition failed. Please try again.');
+      setIsRecording(false);
+    };
+
+    // Start speech recognition
+    recognition.start();
+    setRecognition(recognition);
   };
 
   const stopRecording = () => {
-    if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
-      mediaRecorderRef.current.stop(); // Stop recording
+    if (recognition) {
+      recognition.stop();
       setIsRecording(false);
     }
   };
@@ -179,7 +163,7 @@ function App() {
         </div>
 
         {/* Speech-to-Text Component */}
-        < SpeechToText setTranscript={setTranscript} inputLanguage={inputLanguage} />
+        < SpeechToText setTranscript={setTranscript} inputLanguage={inputLanguage} setError={setError} />
 
         {/* Transcript Display */}
         <textarea

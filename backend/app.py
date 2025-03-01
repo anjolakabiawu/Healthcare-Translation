@@ -1,10 +1,10 @@
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
-import openai
+#import openai
 from dotenv import load_dotenv
 import os
-from google.cloud import speech_v1p1beta1 as speech
-from google.oauth2 import service_account
+#from google.cloud import speech_v1p1beta1 as speech
+#from google.oauth2 import service_account
 import deepl
 
 app = Flask(__name__, static_folder="/workspaces/Healthcare-Translation/frontend/build", static_url_path="/")
@@ -23,9 +23,9 @@ translator = deepl.Translator(deepseek_api_key)
 #print("OpenAI API Key:", os.getenv("OPENAI_API_KEY"))
 
 # Google Speech-to-Text client
-credentials_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
-credentials = service_account.Credentials.from_service_account_file(credentials_path)
-client = speech.SpeechClient(credentials=credentials)
+#credentials_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
+#credentials = service_account.Credentials.from_service_account_file(credentials_path)
+#client = speech.SpeechClient(credentials=credentials)
 
 @app.route("/")
 def serve_frontend():
@@ -35,32 +35,32 @@ def serve_frontend():
 def serve_static(path):
     return send_from_directory(app.static_folder, path)
 
-@app.route('/transcribe', methods=['POST'])
-def transcribe():
-    if 'audio' not in request.files:
-        return jsonify({"error": "No audio file provided"}), 400
+#@app.route('/transcribe', methods=['POST'])
+#def transcribe():
+ #   if 'audio' not in request.files:
+#        return jsonify({"error": "No audio file provided"}), 400
     
-    audio_file = request.files['audio']
-    language = request.form.get('language', 'en-US')
+#    audio_file = request.files['audio']
+#    language = request.form.get('language', 'en-US')
 
     # Read the audio file
-    audio_content = audio_file.read()
+#    audio_content = audio_file.read()
 
     # Configure the audio file for Google Speech-to-Text
-    audio = speech.RecognitionAudio(content=audio_content)
-    config = speech.RecognitionConfig(
-        encoding=speech.RecognitionConfig.AudioEncoding.LINEAR16,
-        sample_rate_hertz=16000,
-        language_code=language,
-    )
+#    audio = speech.RecognitionAudio(content=audio_content)
+#    config = speech.RecognitionConfig(
+#        encoding=speech.RecognitionConfig.AudioEncoding.LINEAR16,
+#        sample_rate_hertz=16000,
+#        language_code=language,
+#    )
 
     #Transcribe the audio
-    response = client.recognize(config=config, audio=audio)
-    if not response.results:
-        return jsonify({"error": "No transcription results found"}), 400
+#    response = client.recognize(config=config, audio=audio)
+#    if not response.results:
+ #       return jsonify({"error": "No transcription results found"}), 400
     
-    transcript = response.results[0].alternatives[0].transcript
-    return jsonify({"transcript": transcript})
+#    transcript = response.results[0].alternatives[0].transcript
+#    return jsonify({"transcript": transcript})
 
 @app.route('/translate', methods=['POST'])
 def translate():
