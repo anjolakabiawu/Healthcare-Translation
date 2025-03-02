@@ -4,8 +4,14 @@ from dotenv import load_dotenv
 import os
 import deepl
 
-app = Flask(__name__, static_folder="build", static_url_path="/")
-CORS(app)
+app = Flask(__name__, static_folder="/workspaces/Healthcare-Translation/backend/build", static_url_path="/")
+CORS(app, resources={
+    r"/api/*": {
+        "origins": ["https://healthcare-translation-vqgl.onrender.com"],
+        "methods": ["GET", "POST", "OPTIONS"],
+        "allow_headers": ["Content-Type"]
+    }
+})
 
 # Load environment variables from .env file
 load_dotenv()
@@ -25,6 +31,14 @@ def serve_frontend():
 @app.route("/<path:path>")
 def serve_static(path):
     return send_from_directory(app.static_folder, path)
+
+@app.route("/api/translate", methods=["OPTIONS"])
+def handle_preflight():
+    response = jsonify({"message": "Preflight request handled"})
+    response.headers.add("Access-Control-Allow-Origin", "https://healthcare-translation-vqgl.onrender.com")
+    response.headers.add("Access-Control-Allow-Methods", "POST, OPTIONS")
+    response.headers.add("Access-Control-Allow-Headers", "Content-Type")
+    return response
 
 @app.route("/api/translate", methods=["POST"])
 def translate():
