@@ -1,9 +1,11 @@
 from flask import Flask, request, jsonify, send_from_directory
+from flask_cors import CORS
 from dotenv import load_dotenv
 import os
 import deepl
 
 app = Flask(__name__, static_folder="/workspaces/Healthcare-Translation/backend/frontend/build", static_url_path="/")
+CORS(app)
 
 # Load environment variables from .env file
 load_dotenv()
