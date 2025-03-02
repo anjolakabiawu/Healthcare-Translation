@@ -46,5 +46,11 @@ def translate():
 def health_check():
     return jsonify({"status": "ok"})
 
+@app.route("/env")
+def show_env():
+    return jsonify({
+        "DEEPSEEK_API_KEY": os.getenv("DEEPSEEK_API_KEY")
+    })
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
