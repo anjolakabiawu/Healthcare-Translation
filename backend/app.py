@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 import os
 import deepl
 
-app = Flask(__name__, static_folder="/workspaces/Healthcare-Translation/backend/build", static_url_path="/")
+app = Flask(__name__, static_folder="/workspaces/Healthcare-Translation/backend/frontend/build", static_url_path="/")
 
 # Load environment variables from .env file
 load_dotenv()
