@@ -165,7 +165,7 @@ function App() {
       }
 
       console.log("Sending translation request...")
-      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}translate`, {
+      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}api/translate`, {
         text: transcript,
         target_language: targetLanguageCode, // Use the mapped code
       });

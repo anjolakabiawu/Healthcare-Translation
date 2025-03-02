@@ -26,23 +26,25 @@ def serve_frontend():
 def serve_static(path):
     return send_from_directory(app.static_folder, path)
 
-@app.route('/translate', methods=['POST'])
+@app.route("/api/translate", methods=["POST"])
 def translate():
     data = request.json
-    text = data.get('text')
-    target_language = data.get('target_language', 'EN-US') # Default to English
-
-    # Using DEEPSEEK for translation
+    text = data.get("text")
+    target_language = data.get("target_language", "EN-US")
+    
     if not text:
         return jsonify({"error": "No text provided"}), 400
     
     try:
-        # Use DeepSeek API for translation
         result = translator.translate_text(text, target_lang=target_language)
-        translated_text = result.text
-        return jsonify({"translated_text": translated_text})
+        return jsonify({"translated_text": result.text})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+# Health check endpoint
+@app.route("/api/health", methods=["GET"])
+def health_check():
+    return jsonify({"status": "ok"})
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
