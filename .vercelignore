@@ -1,0 +1,6 @@
+# Ignore documentation and test files
+**/docs/
+**/tests/
+**/examples/
+**/*.md
+**/*.txt
