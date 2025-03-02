@@ -131,7 +131,6 @@ tenacity==9.0.0
 terminado==0.18.1
 threadpoolctl==3.5.0
 tinycss2==1.4.0
-torch==2.5.1+cpu
 tornado==6.4.2
 # tqdm @ file:///croot/tqdm_1714567712644/work
 traitlets==5.14.3
