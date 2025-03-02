@@ -36,6 +36,7 @@ fqdn==1.5.1
 fsspec==2024.2.0
 gitdb==4.0.11
 GitPython==3.1.43
+gunicorn==21.2.0
 h11==0.14.0
 httpcore==1.0.7
 httpx==0.28.1
@@ -87,6 +88,7 @@ Pygments==2.18.0
 pyparsing==3.2.0
 # PySocks @ file:///work/perseverance-python-buildout/croot/pysocks_1698845478203/work
 python-dateutil==2.9.0.post0
+python-dotenv==1.0.0
 python-json-logger==3.2.0
 pytz==2024.2
 PyYAML==6.0.2
