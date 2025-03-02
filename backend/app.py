@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 import os
 import deepl
 
-app = Flask(__name__, static_folder="/workspaces/Healthcare-Translation/frontend/build", static_url_path="/")
+app = Flask(__name__, static_folder="build", static_url_path="/")
 CORS(app)
 
 # Load environment variables from .env file
