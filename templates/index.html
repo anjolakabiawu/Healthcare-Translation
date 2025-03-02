@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Healthcare Translation App</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <header>
+        <img src="{{ url_for('static', filename='logo.webp') }}" class="app-logo" alt="logo">
+        <h1>Healthcare Translation App</h1>
+        <button id="helpButton">Help</button>
+    </header>
+
+    <div class="container">
+        <!-- Input Language Selection -->
+        <div class="section">
+            <label for="inputLanguage">Input Language:</label>
+            <select id="inputLanguage">
+                <option value="EN-US">English (US)</option>
+                <option value="BG">Bulgarian</option>
+                <option value="CS">Czech</option>
+                <option value="DA">Danish</option>
+                <option value="DE">German</option>
+                <option value="EL">Greek</option>
+                <option value="ES">Spanish</option>
+                <option value="ET">Estonian</option>
+                <option value="FI">Finnish</option>
+                <option value="FR">French</option>
+                <option value="HU">Hungarian</option>
+                <option value="ID">Indonesian</option>
+                <option value="IT">Italian</option>
+                <option value="JA">Japanese</option>
+                <option value="KO">Korean</option>
+                <option value="LT">Lithuanian</option>
+                <option value="LV">Latvian</option>
+                <option value="NB">Norwegian Bokmål</option>
+                <option value="NL">Dutch</option>
+                <option value="PL">Polish</option>
+                <option value="PT-PT">Portuguese (Portugal)</option>
+                <option value="RO">Romanian</option>
+                <option value="RU">Russian</option>
+                <option value="SK">Slovak</option>
+                <option value="SL">Slovenian</option>
+                <option value="SV">Swedish</option>
+                <option value="TR">Turkish</option>
+                <option value="UK">Ukrainian</option>
+                <option value="ZH-HANS">Chinese (Simplified)</option>
+            </select>
+        </div>
+
+        <!-- Speech-to-Text Section -->
+        <div class="section">
+            <button id="startRecording">Start Speaking</button>
+            <button id="stopRecording" disabled>Stop Recording</button>
+        </div>
+
+        <!-- Text Input for Translation -->
+        <div class="section">
+            <textarea id="transcript" placeholder="Enter text to translate..."></textarea>
+        </div>
+
+        <!-- Output Language Selection -->
+        <div class="section">
+            <label for="targetLanguage">Output Language:</label>
+            <select id="targetLanguage">
+                <option value="EN-US">English (US)</option>
+                <option value="EN-US">English (US)</option>
+                <option value="BG">Bulgarian</option>
+                <option value="CS">Czech</option>
+                <option value="DA">Danish</option>
+                <option value="DE">German</option>
+                <option value="EL">Greek</option>
+                <option value="ES">Spanish</option>
+                <option value="ET">Estonian</option>
+                <option value="FI">Finnish</option>
+                <option value="FR">French</option>
+                <option value="HU">Hungarian</option>
+                <option value="ID">Indonesian</option>
+                <option value="IT">Italian</option>
+                <option value="JA">Japanese</option>
+                <option value="KO">Korean</option>
+                <option value="LT">Lithuanian</option>
+                <option value="LV">Latvian</option>
+                <option value="NB">Norwegian Bokmål</option>
+                <option value="NL">Dutch</option>
+                <option value="PL">Polish</option>
+                <option value="PT-PT">Portuguese (Portugal)</option>
+                <option value="RO">Romanian</option>
+                <option value="RU">Russian</option>
+                <option value="SK">Slovak</option>
+                <option value="SL">Slovenian</option>
+                <option value="SV">Swedish</option>
+                <option value="TR">Turkish</option>
+                <option value="UK">Ukrainian</option>
+                <option value="ZH-HANS">Chinese (Simplified)</option>
+            </select>
+        </div>
+
+        <!-- Translate Button -->
+        <div class="section">
+            <button id="translateButton">Translate</button>
+        </div>
+
+        <!-- Error Message -->
+        <p id="errorMessage" class="error"></p>
+
+        <!-- Translated Text Display -->
+        <div class="section">
+            <h3>Translation:</h3>
+            <p id="translatedText"></p>
+        </div>
+
+        <!-- Speak Button -->
+        <div class="section">
+            <button id="speakButton">Speak</button>
+        </div>
+
+        <!-- Translation History -->
+        <div class="section">
+            <h3>Translation History</h3>
+            <ul id="historyList"></ul>
+        </div>
+    </div>
+
+    <!-- Help Modal -->
+    <div id="helpModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>User Guide</h2>
+            <p>This guide will walk you through how to use the Healthcare Translation Web App.</p>
+            <ul>
+                <li><strong>Voice-to-Text:</strong> Convert spoken input into text.</li>
+                <li><strong>Real-Time Translation:</strong> Translate text into multiple languages.</li>
+                <li><strong>Audio Playback:</strong> Listen to the translated text.</li>
+                <li><strong>Translation History:</strong> View past translations.</li>
+            </ul>
+
+            <h3>How to Use the App</h3>
+            <ol>
+                <li><strong>Select Input Language</strong>: Choose the language of the spoken input from the <strong>Input Language</strong> dropdown.</li>
+                <li><strong>Start Speaking</strong>: Click the <strong>Start Speaking</strong> button to begin recording your voice. The app will convert your speech into text and display it in the <strong>Transcript</strong> box.</li>
+                <li><strong>Select Output Language</strong>: Choose the language you want to translate the text into from the <strong>Output Language</strong> dropdown.</li>
+                <li><strong>Translate</strong>: Click the <strong>Translate</strong> button to translate the text. The translated text will appear below the <strong>Transcript</strong> box.</li>
+                <li><strong>Listen to Translation</strong>: Click the <strong>Speak</strong> button to hear the translated text.</li>
+                <li><strong>View Translation History</strong>: Past translations are displayed in the <strong>Translation History</strong> section at the bottom of the page.</li>
+            </ol>
+
+          <h3>Supported Languages</h3>
+          <ul>
+            <li><strong>Input Languages</strong>: English, Spanish, French, German, Chinese.</li>
+            <li><strong>Output Languages</strong>: English, Spanish, French, German, Chinese.</li>
+          </ul>
+
+          <h3>Troubleshooting</h3>
+          <ul>
+            <li><strong>No Audio Detected</strong>: Ensure your microphone is working and you’ve selected the correct input language.</li>
+            <li><strong>Translation Failed</strong>: Check your internet connection and try again.</li>
+          </ul>
+
+          <h3>Privacy and Security</h3>
+          <p>Your data is processed securely and not stored. The app uses HTTPS for secure communication.</p>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
