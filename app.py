@@ -3,6 +3,7 @@ from flask_talisman import Talisman
 from dotenv import load_dotenv
 import os
 import deepl
+import requests
 
 # Initialize Flask app
 app = Flask(__name__, template_folder="templates", static_folder="static")
@@ -13,8 +14,12 @@ Talisman(app, content_security_policy=None)
 # Load API Key
 load_dotenv()
 deepseek_api_key = os.getenv("DEEPSEEK_API_KEY")
-if not deepseek_api_key:
-    raise ValueError("DeepSeek API key not found. Please set the DEEPSEEK_API_KEY environment variable.")
+hugging_face_api_key = os.getenv("HUGGING_FACE_API_KEY")
+
+# Check if API keys are set
+if not deepseek_api_key or not hugging_face_api_key:
+    raise ValueError("API key not found. Please set DEEPSEEK_API_KEY and HUGGING_FACE_API_KEY.")
+
 
 translator = deepl.Translator(deepseek_api_key)
 
@@ -23,6 +28,10 @@ DEEPL_LANGUAGES = {
     "HU", "ID", "IT", "JA", "KO", "LT", "LV", "NB", "NL", "PL",
     "PT-PT", "RO", "RU", "SK", "SL", "SV", "TR", "UK", "ZH-HANS"
 }
+
+WHISPER_API_URL = "https://api-inference.huggingface.co/models/openai/whisper-large-v3"
+HF_API_HEADERS = {"Authorization": f"Bearer {hugging_face_api_key}"}
+
 
 # ✅ Serve HTML Page from Flask
 @app.route("/")
