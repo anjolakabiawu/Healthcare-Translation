@@ -24,14 +24,40 @@ header {
     margin-right: 20px;
 }
 
+header j1 {
+    flex-grow: 1;
+}
+
+#helpButton {
+    width: auto;
+    padding: 8px 16px;
+    margin-right: 20px;
+    background-color: #0056b3;
+}
+
 /* Container */
 .container {
-    max-width: 600px;
+    max-width: 700px;
     background-color: white;
     padding: 20px;
     margin: 40px auto;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
     border-radius: 10px;
+}
+
+/* Layout adjustments */
+.language-selectors,
+.recording-controls,
+.translation-output {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+}
+
+.translation-output div{
+    text-align: left;
+    flex-grow: 1;
 }
 
 /* Input Fields */
@@ -42,31 +68,102 @@ textarea, select {
     border: 1px solid #ccc;
     border-radius: 5px;
     font-size: 16px;
+    box-sizing: border-box;
+}
+
+textarea {
+    height: 100px;
+    resize: vertical;
 }
 
 /* Buttons */
 button {
-    width: 100%;
     padding: 12px;
     margin-top: 10px;
     border: none;
     border-radius: 5px;
     font-size: 16px;
     cursor: pointer;
+    transition: background-color 0.3s, opacity 0.3s;
 }
 
-#translateButton {
+#translateButton, #startRecording {
     background-color: #007BFF;
     color: white;
+    flex-grow: 1;
+}
+
+#stopRecording {
+    background-color: #dc3545;
+    color: white;
+    flex-grow: 1;
 }
 
 #speakButton {
     background-color: #28a745;
     color: white;
+    width: auto;
+    padding: 12px 20px;
 }
 
-button:hover {
+button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+button:not(:disabled):hover {
     opacity: 0.8;
+}
+
+/* Recording Animation */
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(255, 0, 0, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0); }
+}
+.is_recording {
+    animation: pulse 1.5s infinite;
+}
+
+#chatWindow {
+    height: 300px;
+    overflow-y: auto;
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-top: 20px;
+    background-color: #f9f9f9;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.chat-bubble {
+    padding: 10px 15px;
+    border-radius: 15px;
+    margin-bottom: 10px;
+    max-width: 80%;
+    word-wrap: break-word;
+}
+
+.user-bubble {
+    background-color: #007BFF;
+    color: white;
+    margin-left: auto;
+    align-self: flex-end;
+    text-align: right;
+}
+
+.translated-bubble {
+    background-color: #eef2ff;
+    color: black;
+    margin-left: auto;
+    align-self: flex-start;
+    text-align: left;
+}
+
+.error {
+    color: #dc3545;
+    font-weight: bold;
 }
 
 /* Translation Output */
@@ -105,36 +202,3 @@ button:hover {
     }
 }
 
-#chatWindow {
-    height: 300px;
-    overflow-y: auto;
-    border: 1px solid #ccc;
-    padding: 10px;
-    margin-top: 20px;
-}
-.chat-bubble {
-    padding: 10px;
-    border-radius: 15px;
-    margin-bottom: 10px;
-    max-width: 80%;
-}
-.user-bubble {
-    background-color: #007BFF;
-    color: white;
-    margin-left: auto;
-    text-align: right;;
-}
-.translated-bubble {
-    background-color: #eef2ff;
-    color: black;
-    margin-left: auto;
-}
-
-@keyframes pulse {
-    0% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.7); }
-    70% { box-shadow: 0 0 0 10px rgba(255, 0, 0, 0); }
-    100% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0); }
-}
-.is_recording {
-    animation: pulse 1.5s infinite;
-}
