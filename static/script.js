@@ -2,54 +2,69 @@ document.addEventListener("DOMContentLoaded", function() {
     const transcriptEl = document.getElementById("transcript");
     const translatedTextEl = document.getElementById("translatedText");
     const errorMessageEl = document.getElementById("errorMessage");
-    const historyList = document.getElementById("historyList");
+    const historyList = document.getElementById("chatWindow");
 
     const startRecordingButton = document.getElementById("startRecording");
     const stopRecordingButton = document.getElementById("stopRecording");
     const translateButton = document.getElementById("translateButton");
     const speakButton = document.getElementById("speakButton");
 
-    let recognition;
+    let mediaRecorder;
+    let audioChunks = [];
 
     // Speech-to-Text
-    startRecordingButton.addEventListener("click", function() {
-        if (!('webkitSpeechRecognition' in window)) {
-            alert("Your browser does not support speech recognition.");
+    startRecordingButton.addEventListener("click", async function() {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            alert("Your browser does not support audio recording.");
             return;
         }
 
-        recognition = new webkitSpeechRecognition();
-        recognition.continuous = false;
-        recognition.interimResults = false;
-        recognition.lang = document.getElementById("inputLanguage").value;
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true});
+            mediaRecorder = new MediaRecorder(stream);
 
-        recognition.onresult = function(event) {
-            // 1. Put the text in the box
-            transcriptEl.value = event.results[0][0].transcript;
+            mediaRecorder.ondataavailable = event => {
+                audioChunks.push(event.data);
+            };
 
-            // 2. Change the "Translate" button to "Confirm & Translate"
-            translateButton.textContent = "Confirm & Translate";
-            translateButton.style.backgroundColor = "#ffc107"; // Yellow color
-        };
+            mediaRecorder.onstop = () => {
+                const audioBlob = new Blob(audioChunks, {type: 'audio/wav'});
+                audioChunks = [];
 
-        recognition.onerror = function(event) {
-            errorMessageEl.textContent = "Speech recognition error: " + event.error;
-        };
+                errorMessageEl.textContent = "Transcribing... PLease wait.";
+                startRecordingButton.classList.remove("is_recording");
 
-        recognition.start();
-        startRecordingButton.disabled = true;
-        stopRecordingButton.disabled = false;
-        startRecordingButton.classList.add("is-recording");
-    });
+                fetch("api/transcribe", {
+                    method: "POST",
+                    body: audioBlob,
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.text) {
+                        transcriptEl.value = data.text;
+                        errorMessageEl.textContent = "";
+                        translateButton.style.backgroundColor = "#ffc107";
+                        translateButton.textContent = "Confirm & Translate";
+                    } else {
+                        errorMessageEl.textContent = "Transcription failed: " + (data.error || "Unknown error");
+                    }
+                })
+                .catch(error => {
+                    errorMessageEl.textContent = "Error during transcription: " + error;
+                });
+            };
 
-    stopRecordingButton.addEventListener("click", function() {
-        if (recognition) {
-            recognition.stop();
+            mediaRecorder.start();
+            startRecordingButton.disabled = true;
+            stopRecordingButton.disabled = false;
+            startRecordingButton.classList.add("is-recording");
+            errorMessageEl.textContent = "Recording...";
+        } catch (err) {
+            errorMessageEl.textContent = "Error starting recording: " + err.message;
         }
-        startRecordingButton.disabled = false;
-        stopRecordingButton.disabled = true;
-        startRecordingButton.classList.remove("is-recording");
     });
+
+    
 
     // Translation
     translateButton.addEventListener("click", function() {
