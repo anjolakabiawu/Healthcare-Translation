@@ -87,6 +87,10 @@ textarea::placeholder {
     color: rgba(255, 255, 255, 0.7);
 }
 
+select option {
+    color: black;
+}
+
 /* Buttons */
 button {
     padding: 12px;
