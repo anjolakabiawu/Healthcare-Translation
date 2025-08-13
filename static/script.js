@@ -64,7 +64,15 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 
-    
+    stopRecordingButton.addEventListener("click", function() {
+        if (mediaRecorder && mediaRecorder.state === "recording") {
+            mediaRecorder.stop();
+        }
+        startRecordingButton.disabled = false;
+            stopRecordingButton.disabled = true;
+            startRecordingButton.classList.remove("is-recording");
+            errorMessageEl.textContent = "";
+    });
 
     // Translation
     translateButton.addEventListener("click", function() {
@@ -76,6 +84,8 @@ document.addEventListener("DOMContentLoaded", function() {
             return;
         }
 
+        errorMessageEl.textContent = "Translating...";
+
         fetch("/api/translate", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -83,33 +93,27 @@ document.addEventListener("DOMContentLoaded", function() {
         })
         .then(response => response.json())
         .then(data => {
+            errorMessageEl.textContent = "";
             if (data.translated_text) {
                 translatedTextEl.textContent = data.translated_text;
-                errorMessageEl.textContent = "";
+                
+                // Create user bubble
+                const userBubble = document.createElement("div");
+                userBubble.className = "chat-bubble user-bubble";
+                userBubble.textContent = text;
+                chatWindow.appendChild(userBubble);
 
-                // Add to history
-                const listItem = document.createElement("li");
-                listItem.textContent = `Input: ${text} → Output: ${data.translated_text}`;
-                historyList.appendChild(listItem);
+                // Create translated bubble
+                const translatedBubble = document.createElement("div");
+                translatedBubble.className = "chat-bubble translated-bubble";
+                translatedBubble.textContent = data.translated_text;
+                chatWindow.appendChild(translatedBubble);
+
+                // Auto-scroll to the bottom of the chat window
+                chatWindow.scrollTop = chatWindow.scrollHeight;
             } else {
                 errorMessageEl.textContent = "Translation failed: " + data.error;
             }
-            const chatWindow = document.getElementById("chatWindow");
-
-            // Create user bubble
-            const userBubble = document.createElement("div");
-            userBubble.className = "chat-bubble user-bubble";
-            userBubble.textContent = text;
-            chatWindow.appendChild(userBubble);
-
-            // Create translated bubble
-            const translatedBubble = document.createElement("div");
-            translatedBubble.className = "chat-bubble translated-bubble";
-            translatedBubble.textContent = data.translated_text;
-            chatWindow.appendChild(translatedBubble);
-
-            // Auto-scroll to the bottom of the chat window
-            chatWindow.scrollTop = chatWindow.scrollHeight;
         })
         .catch(error => {
             errorMessageEl.textContent = "Error: " + error;
