@@ -4,9 +4,11 @@ from dotenv import load_dotenv
 import os
 import deepl
 import requests
+import pandas as pd
 
 # Initialize Flask app
 app = Flask(__name__, template_folder="templates", static_folder="static")
+
 
 # Flask-Talisman for Security (No CORS Required)
 Talisman(app, content_security_policy=None)
@@ -32,6 +34,24 @@ DEEPL_LANGUAGES = {
 WHISPER_API_URL = "https://api-inference.huggingface.co/models/openai/whisper-large-v3"
 HF_API_HEADERS = {"Authorization": f"Bearer {hugging_face_api_key}"}
 
+glossary_df = None
+try:
+    # Load glossary from CSV file
+    glossary_df = pd.read_csv("glossary.csv", header=None, names=["source", "target"])
+    glossary_dict = dict(zip(glossary_df["source"], glossary_df["target"]))
+except FileNotFoundError:
+    print("WARNING: glossary.csv not found. No manual glossary will be applied.")
+    glossary_dict = {}
+
+def apply_manual_glossary(text, glossary):
+    """
+    A simple function to find and replace terms before translation.
+    """
+    for source_term, target_term in glossary.items():
+        text = text.replace(source_term, target_term)
+    return text
+
+
 
 # ✅ Serve HTML Page from Flask
 @app.route("/")
@@ -46,7 +66,9 @@ def translate():
         return jsonify({"error": "Invalid request. Missing text or target language."}), 400
 
     text = data["text"]
-    target_language = data["target_language"].upper()  # Convert to uppercase
+    target_language = data["target_language"].upper() 
+    
+    text_with_glossary = apply_manual_glossary(text, glossary_dict)
 
     # ✅ Validate target language
     if target_language not in DEEPL_LANGUAGES:
