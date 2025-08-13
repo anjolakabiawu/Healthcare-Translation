@@ -31,9 +31,9 @@ This is a web-based prototype that enables real-time, multilingual translation b
 
 3. Set environment variables:
     ```bash
->   export DEEPL_API_KEY="your_deepl_api_key_goes_here"
+    export DEEPL_API_KEY="your_deepl_api_key_goes_here"
     export HUGGINGFACE_API_TOKEN="hf_your_huggingface_token_goes_here"
->   ```
+    ```
 
 4. Run the app:
     ```bash
