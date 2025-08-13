@@ -10,7 +10,7 @@ import pandas as pd
 app = Flask(__name__, template_folder="templates", static_folder="static")
 
 
-# Flask-Talisman for Security (No CORS Required)
+# Flask-Talisman for Security
 Talisman(app, content_security_policy=None)
 
 # Load API Key
@@ -26,10 +26,13 @@ if not deepseek_api_key or not hugging_face_api_key:
 translator = deepl.Translator(deepseek_api_key)
 
 DEEPL_LANGUAGES = {
-    "EN-US", "BG", "CS", "DA", "DE", "EL", "ES", "ET", "FI", "FR",
-    "HU", "ID", "IT", "JA", "KO", "LT", "LV", "NB", "NL", "PL",
-    "PT-PT", "RO", "RU", "SK", "SL", "SV", "TR", "UK", "ZH-HANS"
-}
+    "EN-US": "English (US)", "BG" : "Bulgarian", "CS" : "Czech", "DA" : "Danish", "DE" : "German",
+    "EL" : "Greek", "ES" : "Spanish", "ET" : "Estonian", "FI" : "Finnish", "FR" : "French",
+    "HU" : "Hungarian", "ID" : "Indonesian", "IT" : "Italian", "JA" : "Japanese", "KO" : "Korean",
+    "LT" : "Lithuanian", "LV" : "Latvian", "NB" : "Norwegian Bokmål", "NL" : "Dutch", "PL" : "Polish",
+    "PT-PT" : "Portuguese (Portugal)", "RO" : "Romanian", "RU" : "Russian", "SK" : "Slovak",
+    "SL" : "Slovenian", "SV" : "Swedish", "TR" : "Turkish", "UK" : "Ukrainian", "ZH-HANS" : "Chinese (Simplified)"
+    }
 
 WHISPER_API_URL = "https://api-inference.huggingface.co/models/openai/whisper-large-v3"
 HF_API_HEADERS = {"Authorization": f"Bearer {hugging_face_api_key}"}
@@ -53,14 +56,34 @@ def apply_manual_glossary(text, glossary):
 
 
 
-# ✅ Serve HTML Page from Flask
+# Serve HTML Page from Flask
 @app.route("/")
 def index():
     return render_template("index.html", languages=DEEPL_LANGUAGES)  # Serve frontend
 
-# ✅ Translation API
+# Transcribe Audio using Whisper API
+@app.route("/api/transcribe", methods=["POST"])
+def transcribe():
+    """Receives audio data and returns a transcription from Whisper."""
+    if not request.data:
+        return jsonify({"error": "No audio data received."}), 400
+    
+    try:
+        response = requests.post(WHISPER_API_URL, headers=HF_API_HEADERS, data=request.data)
+        response.raise_for_status()
+        result = response.json()
+        
+        if "text" not in result:
+            return jsonify({"error": "Transcription failed."}), 500
+        
+        return jsonify(result)
+    except requests.exceptions.RequestException as e:
+        return jsonify({"error": f"API request error: {str(e)}"}), 500
+
+# Translation API
 @app.route("/api/translate", methods=["POST"])
 def translate():
+    """Receives text and returns a translation from DeepL."""
     data = request.json
     if not data or "text" not in data or "target_language" not in data:
         return jsonify({"error": "Invalid request. Missing text or target language."}), 400
@@ -70,7 +93,7 @@ def translate():
     
     text_with_glossary = apply_manual_glossary(text, glossary_dict)
 
-    # ✅ Validate target language
+    # Validate target language
     if target_language not in DEEPL_LANGUAGES:
         return jsonify({"error": f"Unsupported target language: {target_language}"}), 400
 
