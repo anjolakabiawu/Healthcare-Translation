@@ -37,14 +37,15 @@ This guide will walk you through how to use the Healthcare Translation Web App.
 ---
 
 ## **Supported Languages**
-- **Input Languages**: English, Spanish, French, German, Chinese, Hindi.
-- **Output Languages**: English, Spanish, French, German, Chinese, Hindi.
+- **Input Languages**: English, Spanish, French, German, Chinese, Hindi, etc.
+- **Output Languages**: English, Spanish, French, German, Chinese, Hindi, etc.
 
 ---
 
 ## **Troubleshooting**
+- **Transcription is slow on first use**: The speech recognition model can take up to a minute to load the first time you use it after the server starts. Please be patient, as subsequent uses will be much faster.
 - **No Audio Detected**: Ensure your microphone is working and you’ve selected the correct input language.
-- **Translation Failed**: Check your internet connection and try again.
+- **Translation Failed**: Check your internet connection and try again. The translation feature requires an active connection to the DeepL API.
 
 ---
 
