@@ -15,43 +15,27 @@
 
     <div class="container">
         <!-- Input Language Selection -->
-        <div class="section">
-            <label for="inputLanguage">Input Language:</label>
-            <select id="inputLanguage">
-                <option value="EN-US">English (US)</option>
-                <option value="BG">Bulgarian</option>
-                <option value="CS">Czech</option>
-                <option value="DA">Danish</option>
-                <option value="DE">German</option>
-                <option value="EL">Greek</option>
-                <option value="ES">Spanish</option>
-                <option value="ET">Estonian</option>
-                <option value="FI">Finnish</option>
-                <option value="FR">French</option>
-                <option value="HU">Hungarian</option>
-                <option value="ID">Indonesian</option>
-                <option value="IT">Italian</option>
-                <option value="JA">Japanese</option>
-                <option value="KO">Korean</option>
-                <option value="LT">Lithuanian</option>
-                <option value="LV">Latvian</option>
-                <option value="NB">Norwegian Bokmål</option>
-                <option value="NL">Dutch</option>
-                <option value="PL">Polish</option>
-                <option value="PT-PT">Portuguese (Portugal)</option>
-                <option value="RO">Romanian</option>
-                <option value="RU">Russian</option>
-                <option value="SK">Slovak</option>
-                <option value="SL">Slovenian</option>
-                <option value="SV">Swedish</option>
-                <option value="TR">Turkish</option>
-                <option value="UK">Ukrainian</option>
-                <option value="ZH-HANS">Chinese (Simplified)</option>
-            </select>
+        <div class="section language-selectors">
+            <div>
+                <label for="inputLanguage">Input Language:</label>
+                <select id="inputLanguage">
+                    {% for code, name in languages.items() %}
+                        <option value="{{ code }}">{{ name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label for="targetLanguage">Output Language:</label>
+                <select id="targetLanguage">
+                    {% for code, name in languages.items() %}
+                        <option value="{{ code }}">{{ name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
         </div>
 
         <!-- Speech-to-Text Section -->
-        <div class="section">
+        <div class="section recording-controls">
             <button id="startRecording">Start Speaking</button>
             <button id="stopRecording" disabled>Stop Recording</button>
         </div>
@@ -59,43 +43,6 @@
         <!-- Text Input for Translation -->
         <div class="section">
             <textarea id="transcript" placeholder="Enter text to translate..."></textarea>
-        </div>
-
-        <!-- Output Language Selection -->
-        <div class="section">
-            <label for="targetLanguage">Output Language:</label>
-            <select id="targetLanguage">
-                <option value="EN-US">English (US)</option>
-                <option value="EN-US">English (US)</option>
-                <option value="BG">Bulgarian</option>
-                <option value="CS">Czech</option>
-                <option value="DA">Danish</option>
-                <option value="DE">German</option>
-                <option value="EL">Greek</option>
-                <option value="ES">Spanish</option>
-                <option value="ET">Estonian</option>
-                <option value="FI">Finnish</option>
-                <option value="FR">French</option>
-                <option value="HU">Hungarian</option>
-                <option value="ID">Indonesian</option>
-                <option value="IT">Italian</option>
-                <option value="JA">Japanese</option>
-                <option value="KO">Korean</option>
-                <option value="LT">Lithuanian</option>
-                <option value="LV">Latvian</option>
-                <option value="NB">Norwegian Bokmål</option>
-                <option value="NL">Dutch</option>
-                <option value="PL">Polish</option>
-                <option value="PT-PT">Portuguese (Portugal)</option>
-                <option value="RO">Romanian</option>
-                <option value="RU">Russian</option>
-                <option value="SK">Slovak</option>
-                <option value="SL">Slovenian</option>
-                <option value="SV">Swedish</option>
-                <option value="TR">Turkish</option>
-                <option value="UK">Ukrainian</option>
-                <option value="ZH-HANS">Chinese (Simplified)</option>
-            </select>
         </div>
 
         <!-- Translate Button -->
@@ -107,20 +54,18 @@
         <p id="errorMessage" class="error"></p>
 
         <!-- Translated Text Display -->
-        <div class="section">
-            <h3>Translation:</h3>
-            <p id="translatedText"></p>
-        </div>
-
-        <!-- Speak Button -->
-        <div class="section">
+        <div class="section translation-output">
+            <div>
+                <h3>Translation:</h3>
+                <p id="translatedText"></p>
+            </div>
             <button id="speakButton">Speak</button>
         </div>
 
         <!-- Translation History -->
         <div class="section">
             <h3>Translation History</h3>
-            <ul id="historyList"></ul>
+            <div id="chatWindow"></div>
         </div>
     </div>
 
