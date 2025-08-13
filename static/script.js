@@ -24,7 +24,12 @@ document.addEventListener("DOMContentLoaded", function() {
         recognition.lang = document.getElementById("inputLanguage").value;
 
         recognition.onresult = function(event) {
+            // 1. Put the text in the box
             transcriptEl.value = event.results[0][0].transcript;
+
+            // 2. Change the "Translate" button to "Confirm & Translate"
+            translateButton.textContent = "Confirm & Translate";
+            translateButton.style.backgroundColor = "#ffc107"; // Yellow color
         };
 
         recognition.onerror = function(event) {
@@ -76,6 +81,8 @@ document.addEventListener("DOMContentLoaded", function() {
         .catch(error => {
             errorMessageEl.textContent = "Error: " + error;
         });
+        translateButton.textContent = "Translate";
+        translateButton.style.backgroundColor = "#007BFF"; // Reset button color
     });
 
     // Speak Translated Text
