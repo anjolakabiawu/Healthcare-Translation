@@ -77,6 +77,22 @@ document.addEventListener("DOMContentLoaded", function() {
             } else {
                 errorMessageEl.textContent = "Translation failed: " + data.error;
             }
+            const chatWindow = document.getElementById("chatWindow");
+
+            // Create user bubble
+            const userBubble = document.createElement("div");
+            userBubble.className = "chat-bubble user-bubble";
+            userBubble.textContent = text;
+            chatWindow.appendChild(userBubble);
+
+            // Create translated bubble
+            const translatedBubble = document.createElement("div");
+            translatedBubble.className = "chat-bubble translated-bubble";
+            translatedBubble.textContent = data.translated_text;
+            chatWindow.appendChild(translatedBubble);
+
+            // Auto-scroll to the bottom of the chat window
+            chatWindow.scrollTop = chatWindow.scrollHeight;
         })
         .catch(error => {
             errorMessageEl.textContent = "Error: " + error;
