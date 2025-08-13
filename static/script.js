@@ -118,13 +118,17 @@ document.addEventListener("DOMContentLoaded", function() {
         .catch(error => {
             errorMessageEl.textContent = "Error: " + error;
         });
+
+        // Reset the transcript field
         translateButton.textContent = "Translate";
         translateButton.style.backgroundColor = "#007BFF"; // Reset button color
     });
 
     // Speak Translated Text
     speakButton.addEventListener("click", function() {
-        const utterance = new SpeechSynthesisUtterance(translatedTextEl.textContent);
+        const textToSpeak = translatedTextEl.textContent;
+        if (!textToSpeak) return;
+        const utterance = new SpeechSynthesisUtterance(textToSpeak);
         utterance.lang = document.getElementById("targetLanguage").value;
         speechSynthesis.speak(utterance);
     });
