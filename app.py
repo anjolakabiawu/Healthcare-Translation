@@ -56,7 +56,7 @@ def apply_manual_glossary(text, glossary):
 # ✅ Serve HTML Page from Flask
 @app.route("/")
 def index():
-    return render_template("index.html")  # Serve frontend
+    return render_template("index.html", languages=DEEPL_LANGUAGES)  # Serve frontend
 
 # ✅ Translation API
 @app.route("/api/translate", methods=["POST"])

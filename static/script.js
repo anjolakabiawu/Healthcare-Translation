@@ -39,6 +39,7 @@ document.addEventListener("DOMContentLoaded", function() {
         recognition.start();
         startRecordingButton.disabled = true;
         stopRecordingButton.disabled = false;
+        startRecordingButton.classList.add("is-recording");
     });
 
     stopRecordingButton.addEventListener("click", function() {
@@ -47,6 +48,7 @@ document.addEventListener("DOMContentLoaded", function() {
         }
         startRecordingButton.disabled = false;
         stopRecordingButton.disabled = true;
+        startRecordingButton.classList.remove("is-recording");
     });
 
     // Translation
