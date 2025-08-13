@@ -34,8 +34,9 @@ DEEPL_LANGUAGES = {
     "SL" : "Slovenian", "SV" : "Swedish", "TR" : "Turkish", "UK" : "Ukrainian", "ZH-HANS" : "Chinese (Simplified)"
     }
 
-WHISPER_API_URL = "https://api-inference.huggingface.co/models/openai/whisper-large-v3"
-HF_API_HEADERS = {"Authorization": f"Bearer {hugging_face_api_key}"}
+WHISPER_API_URL = "https://huggingface.co/openai/whisper-large-v3-turbo"
+HF_API_HEADERS = {"Authorization": f"Bearer {hugging_face_api_key}",
+                  "Content-Type": "audio/wav"}
 
 glossary_df = None
 try:

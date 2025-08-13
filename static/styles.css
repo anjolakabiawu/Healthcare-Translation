@@ -71,15 +71,20 @@ textarea, select {
     width: 100%;
     padding: 10px;
     margin: 10px 0;
-    border: 1px solid #ccc;
-    border-radius: 5px;
     font-size: 16px;
     box-sizing: border-box;
+    
+    /* --- The Blending Effect --- */
+    background-color: transparent; /* Makes the background see-through */
+    color: white; /* Changes the text color to white for readability */
+    border: none; /* Removes the default border */
+    border-bottom: 2px solid rgba(255, 255, 255, 0.5); /* Adds a subtle bottom line */
+    border-radius: 0; /* Flattens the corners for a cleaner look with a bottom border */
 }
 
-textarea {
-    height: 100px;
-    resize: vertical;
+/* Style the placeholder text in the textarea */
+textarea::placeholder {
+    color: rgba(255, 255, 255, 0.7);
 }
 
 /* Buttons */
@@ -94,19 +99,19 @@ button {
 }
 
 #translateButton, #startRecording {
-    background-color: #2ECC71;
-    color: white;
+    background-color: #51bd7e;
+    color: rgb(253, 253, 253);
     flex-grow: 1;
 }
 
 #stopRecording {
-    background-color: #E74C3C;
+    background-color: #981f11;
     color: white;
     flex-grow: 1;
 }
 
 #speakButton {
-    background-color: #28a745;
+    background-color: #51bd7e;
     color: white;
     width: auto;
     padding: 12px 20px;
@@ -134,13 +139,16 @@ button:not(:disabled):hover {
 #chatWindow {
     height: 300px;
     overflow-y: auto;
-    border: 1px solid #ccc;
-    padding: 10px;
+    padding: 15px; /* A little extra padding */
     margin-top: 20px;
-    background-color: #f9f9f9;
     display: flex;
     flex-direction: column;
     gap: 10px;
+
+    /* --- The Blending Effect --- */
+    background-color: rgba(0, 0, 0, 0.1); /* Subtle transparent black overlay */
+    border: none; /* Removes the harsh border */
+    border-radius: 8px; /* Softens the corners */
 }
 
 .chat-bubble {
