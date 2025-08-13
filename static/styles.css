@@ -1,7 +1,11 @@
 /* General Styling */
+html {
+    min-height: 100%; /* Ensures the element fills the entire screen height */
+    background: linear-gradient(to bottom, #38638e, #FDFEFE);
+}
+
 body {
     font-family: "Arial", sans-serif;
-    background-color: #f4f4f9;
     margin: 0;
     padding: 0;
     text-align: center;
@@ -9,7 +13,7 @@ body {
 
 /* App Header */
 header {
-    background-color: #007BFF;
+    background-color: #1A5276;
     padding: 15px;
     color: white;
     font-size: 24px;
@@ -19,8 +23,8 @@ header {
 }
 
 .app-logo {
-    width: 50px;
-    height: 50px;
+    width: 100px;
+    height: 100px;
     margin-right: 20px;
 }
 
@@ -33,12 +37,14 @@ header j1 {
     padding: 8px 16px;
     margin-right: 20px;
     background-color: #0056b3;
+    background-color: transparent;
+    border: 1px solid rgb(185, 152, 152);
 }
 
 /* Container */
 .container {
     max-width: 700px;
-    background-color: white;
+    background-color: #78bcc4;
     padding: 20px;
     margin: 40px auto;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
@@ -88,13 +94,13 @@ button {
 }
 
 #translateButton, #startRecording {
-    background-color: #007BFF;
+    background-color: #2ECC71;
     color: white;
     flex-grow: 1;
 }
 
 #stopRecording {
-    background-color: #dc3545;
+    background-color: #E74C3C;
     color: white;
     flex-grow: 1;
 }
@@ -146,7 +152,7 @@ button:not(:disabled):hover {
 }
 
 .user-bubble {
-    background-color: #007BFF;
+    background-color: #1A5276;
     color: white;
     margin-left: auto;
     align-self: flex-end;
@@ -154,8 +160,8 @@ button:not(:disabled):hover {
 }
 
 .translated-bubble {
-    background-color: #eef2ff;
-    color: black;
+    background-color: #E8F8F5;
+    color: #333;
     margin-left: auto;
     align-self: flex-start;
     text-align: left;
@@ -164,4 +170,46 @@ button:not(:disabled):hover {
 .error {
     color: #dc3545;
     font-weight: bold;
+}
+
+/* The Modal Background (overlay) */
+.modal {
+  display: none; /* Crucial: Hides the modal by default */
+  position: fixed; /* Stays in place, covering the whole screen */
+  z-index: 100; /* Sits on top of all other content */
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto; /* Adds scroll if content is too long */
+  background-color: rgba(0, 0, 0, 0.6); /* Semi-transparent black background */
+}
+
+/* The Modal Content Box */
+.modal-content {
+  background-color: #fefefe;
+  margin: 10% auto; /* Centers the box vertically and horizontally */
+  padding: 25px;
+  border: 1px solid #888;
+  border-radius: 8px;
+  width: 80%;
+  max-width: 600px; /* Adjust max-width as needed */
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  text-align: left; /* Align text inside the modal to the left */
+}
+
+/* The Close Button (X) */
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+  line-height: 1;
+}
+
+.close:hover,
+.close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
 }
