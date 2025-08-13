@@ -3,7 +3,7 @@
 This is a web-based prototype that enables real-time, multilingual translation between patients and healthcare providers. The app converts spoken input into text, provides a live transcript, and offers a translated version with audio playback.
 
 ## Features
-- **Voice-to-Text**: Converts spoken input into text using the `openai/whisper-tiny` model run locally.
+- **Voice-to-Text**: Converts spoken input into text using the `openai/whisper-large-v3` model run locally.
 - **Real-Time Translation**: Translates text using the DeepL API.
 - **Audio Playback**: Speaks the translated text using the Web Speech API.
 - **Mobile-First Design**: Responsive and optimized for mobile and desktop use.
