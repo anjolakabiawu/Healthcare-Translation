@@ -1,0 +1,79 @@
+/* ─────────────────────────────────────────────────────────────────────
+   MediTranslate — Design tokens
+   Mesa editorial-dark theme, recalibrated to a yellowish-blue palette.
+   Type: Fraunces (display) + Geist (body) + Geist Mono (tabular/IPA).
+   No component CSS lives here — only tokens.
+   ───────────────────────────────────────────────────────────────────── */
+
+:root {
+  /* ── Ground — very dark, slight blue tint ──────────────────────── */
+  --bg:            #080e1a;
+  --bg-2:          #0b1322;
+  --surface:       #0f1829;
+  --surface-2:     #15203580;  /* +hover lift; blended over surface  */
+  --surface-2-solid: #152035;
+  --surface-3:     #1c2a44;
+
+  /* ── Rules / hairlines ─────────────────────────────────────────── */
+  --border:        rgba(240, 237, 230, 0.09);
+  --border-strong: rgba(240, 237, 230, 0.18);
+  --border-accent: rgba(232, 184, 75, 0.45);
+  --border-blue:   rgba(96, 140, 210, 0.40);
+
+  /* ── Type ──────────────────────────────────────────────────────── */
+  --ink:    #f0ede6;  /* warm off-white                              */
+  --ink-2:  #cfd6e2;
+  --muted:  #8a9bb5;  /* muted gray-blue                             */
+  --faint:  #586480;
+
+  /* ── Accent — warm amber-yellow (primary) ──────────────────────── */
+  --accent:    #e8b84b;
+  --accent-2:  #c79a35;
+  --accent-3:  #f5cf76;
+  --accent-soft: rgba(232, 184, 75, 0.12);
+
+  /* ── Secondary accent — deep blue / rich navy ──────────────────── */
+  --blue:      #2f6fd6;
+  --blue-2:    #1a3a6b;
+  --blue-3:    #5b94e8;
+  --blue-soft: rgba(47, 111, 214, 0.14);
+
+  /* ── Status ────────────────────────────────────────────────────── */
+  --ok:        #2dd4bf;  /* soft teal — success                      */
+  --ok-bg:     rgba(45, 212, 191, 0.12);
+  --warn:      #f59e0b;  /* amber — uncertain / flag                 */
+  --warn-bg:   rgba(245, 158, 11, 0.14);
+  --bad:       #ef4444;  /* muted red — high-risk / error            */
+  --bad-bg:    rgba(239, 68, 68, 0.14);
+  --info:      #5b94e8;
+  --info-bg:   rgba(91, 148, 232, 0.14);
+  --oov:       #a78bfa;  /* purple — out-of-vocabulary               */
+  --oov-bg:    rgba(167, 139, 250, 0.14);
+
+  /* ── Elevation ─────────────────────────────────────────────────── */
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.35), 0 0 0 1px rgba(0,0,0,0.10);
+  --shadow:    0 8px 22px rgba(0,0,0,0.40), 0 1px 2px rgba(0,0,0,0.30);
+  --shadow-lg: 0 26px 64px rgba(0,0,0,0.55), 0 2px 8px rgba(0,0,0,0.40);
+  /* hover-lift glow used under cards/buttons on mouseover */
+  --glow-accent: 0 10px 28px rgba(232, 184, 75, 0.22), 0 2px 6px rgba(0,0,0,0.40);
+  --glow-blue:   0 10px 28px rgba(47, 111, 214, 0.22), 0 2px 6px rgba(0,0,0,0.40);
+
+  /* ── Radii / spacing scale ─────────────────────────────────────── */
+  --r-xs: 2px;
+  --r-sm: 3px;
+  --r:    4px;
+  --r-lg: 8px;
+  --r-xl: 14px;
+
+  /* ── Type families ─────────────────────────────────────────────── */
+  --serif: "Fraunces", "Iowan Old Style", Georgia, serif;
+  --sans:  "Geist", "Inter", ui-sans-serif, -apple-system, system-ui, sans-serif;
+  --mono:  "Geist Mono", "Roboto Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  /* ── Motion ────────────────────────────────────────────────────── */
+  --ease:      cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-out:  cubic-bezier(0.45, 0.05, 0.55, 0.95);
+  --t-fast:    120ms;
+  --t-med:     200ms;
+  --t-slow:    280ms;
+}

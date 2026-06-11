@@ -1,0 +1,25 @@
+# Render blueprint — https://render.com/docs/blueprint-spec
+# Deploys the Flask app from the Dockerfile as a web service.
+services:
+  - type: web
+    name: healthcare-translation
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    # Free tier is 512MB RAM and may OOM with the ML models loaded.
+    # Bump to "starter" (or higher) for reliable inference.
+    plan: free
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: FLASK_ENV
+        value: production
+      # Lightest Whisper model to fit smaller instances. Raise to
+      # base | small | medium on a larger plan for more accuracy.
+      - key: WHISPER_MODEL_SIZE
+        value: tiny
+      # Generate a strong value in the Render dashboard instead of committing one.
+      - key: SECRET_KEY
+        generateValue: true
+      # Cache HuggingFace model downloads on the persistent-ish container fs.
+      - key: HF_HOME
+        value: /app/.cache/huggingface

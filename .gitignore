@@ -1,0 +1,17 @@
+backend/credentials/
+
+# Secrets
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+*.egg-info/
+
+# Local data stores
+data/corrections.db
+
+# Throwaway theme reference (read-only; safe to delete)
+dashboard/

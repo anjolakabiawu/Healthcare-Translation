@@ -1,0 +1,50 @@
+source_term,target_term,source_lang,target_lang
+Complete Blood Count,Hemograma completo,EN,ES
+CT Scan,Tomografía computarizada,EN,ES
+Culture,Cultivo,EN,ES
+Discharge,Secreción / Dar de alta,EN,ES
+Feeling blue,Sentirse deprimido / Triste,EN,ES
+Frog in my throat,Carraspera / Garganta irritada,EN,ES
+Funny bone,Nervio cubital,EN,ES
+History,Historial clínico,EN,ES
+Hypertension,Hipertensión,EN,ES
+Myocardial Infarction,Infarto de miocardio,EN,ES
+Pins and needles,Hormigueo,EN,ES
+Tender,Sensible (al tacto),EN,ES
+Tummy,Abdomen,EN,ES
+Tylenol,Paracetamol,EN,ES
+Wrist,Muñeca,EN,ES
+Blood Pressure,Presión arterial,EN,ES
+Allergy,Alergia,EN,ES
+Prescription,Receta médica,EN,ES
+Dosage,Dosis,EN,ES
+Symptom,Síntoma,EN,ES
+Diagnosis,Diagnóstico,EN,ES
+Emergency,Emergencia,EN,ES
+Nausea,Náuseas,EN,ES
+Fever,Fiebre,EN,ES
+Fracture,Fractura,EN,ES
+Infection,Infección,EN,ES
+Inflammation,Inflamación,EN,ES
+Surgery,Cirugía,EN,ES
+Anesthesia,Anestesia,EN,ES
+Antibiotic,Antibiótico,EN,ES
+Vaccine,Vacuna,EN,ES
+Chronic,Crónico,EN,ES
+Acute,Agudo,EN,ES
+Ambulance,Ambulancia,EN,ES
+Tachycardia,Taquicardia,EN,FR
+Blood Pressure,Tension artérielle,EN,FR
+Allergy,Allergie,EN,FR
+Emergency,Urgence,EN,FR
+Hypertension,Hypertension,EN,FR
+Fever,Fièvre,EN,FR
+Nausea,Nausée,EN,FR
+Prescription,Ordonnance,EN,FR
+Diagnosis,Diagnostic,EN,FR
+Symptom,Symptôme,EN,FR
+Surgery,Chirurgie,EN,FR
+Fracture,Fracture,EN,FR
+Infection,Infection,EN,FR
+Vaccine,Vaccin,EN,FR
+Antibiotic,Antibiotique,EN,FR
