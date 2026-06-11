@@ -77,8 +77,16 @@ function setLoading(active, message = "Processing…") {
   translateBtn.disabled = active;
 }
 
-// ── Recording (Web Speech API) ────────────────────────────────
-const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+// ── Recording (MediaRecorder → faster-whisper backend) ────────
+// We capture mic audio with MediaRecorder, watch the audio level to
+// auto-stop after a stretch of silence, then POST the clip to
+// /api/transcribe (faster-whisper) for far better medical-term accuracy
+// than the browser's built-in recognizer.
+
+// Stop automatically after this much continuous silence (your 5–10s ask).
+const SILENCE_MS = 8000;
+// Below this normalized RMS level counts as "silence".
+const SILENCE_THRESHOLD = 0.012;
 
 recordBtn.addEventListener("click", () => {
   if (!AppState.isRecording) {
@@ -88,137 +96,129 @@ recordBtn.addEventListener("click", () => {
   }
 });
 
-// Medical terms to bias the recognizer toward correct spellings.
-const MEDICAL_HINTS = [
-  // imaging / tests
-  "CT scan", "MRI", "ECG", "EKG", "X-ray", "ultrasound", "biopsy",
-  "complete blood count", "blood pressure", "blood test",
-  // conditions / symptoms
-  "hypertension", "myocardial infarction", "tachycardia", "bradycardia",
-  "arrhythmia", "diabetes", "asthma", "pneumonia", "malaria", "tuberculosis",
-  "typhoid", "cholera", "hepatitis", "meningitis", "sepsis", "anemia",
-  "edema", "jaundice", "migraine", "seizure", "stroke", "ulcer",
-  "diagnosis", "prognosis", "symptom", "syndrome", "infection",
-  "inflammation", "fracture", "fever", "nausea", "vomiting", "diarrhea",
-  "allergy", "rash", "cough", "fatigue", "dizziness",
-  // drugs / treatment
-  "prescription", "dosage", "antibiotic", "antimalarial", "analgesic",
-  "paracetamol", "ibuprofen", "amoxicillin", "metformin", "insulin",
-  "anesthesia", "vaccine", "injection", "infusion", "chemotherapy",
-  // care
-  "emergency", "surgery", "chronic", "acute", "outpatient", "inpatient",
-  "referral", "follow-up", "discharge",
-];
-
-function startRecording() {
-  if (!SpeechRecognition) {
-    showToast("Speech recognition is not supported in this browser. Please use Chrome or Edge.", "error");
+async function startRecording() {
+  if (!navigator.mediaDevices || !window.MediaRecorder) {
+    showToast("Audio recording isn't supported in this browser. Please use Chrome or Edge.", "error");
     return;
   }
 
-  const recognition = new SpeechRecognition();
-  recognition.lang = sourceLang.value;
-  // Keep listening across natural pauses; we decide when to stop via the
-  // silence timer below (see SILENCE_MS), not after the first utterance.
-  recognition.continuous = true;
-  recognition.interimResults = true;
-  recognition.maxAlternatives = 1;
-
-  // Provide medical term hints if the API supports it
-  if (window.SpeechGrammarList) {
-    const grammar = `#JSGF V1.0; grammar medical; public <term> = ${MEDICAL_HINTS.join(" | ")} ;`;
-    const list = new window.SpeechGrammarList();
-    list.addFromString(grammar, 1);
-    recognition.grammars = list;
+  let stream;
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  } catch (err) {
+    showToast("Microphone access denied. Please allow microphone access.", "error");
+    return;
   }
 
-  const baseText = inputText.value.trimEnd();
-  let finalTranscript = baseText ? baseText + " " : "";
+  // Pick a mime type the browser actually supports (ffmpeg decodes both).
+  const mime = MediaRecorder.isTypeSupported("audio/webm")
+    ? "audio/webm"
+    : (MediaRecorder.isTypeSupported("audio/ogg") ? "audio/ogg" : "");
+  const recorder = new MediaRecorder(stream, mime ? { mimeType: mime } : undefined);
+  const chunks = [];
+  let spoke = false;       // did we ever detect real speech?
   let silenceTimer = null;
+  let rafId = null;
 
-  // How long to keep listening after the last detected speech before
-  // auto-stopping. Long enough to talk through natural pauses.
-  const SILENCE_MS = 7000;
+  // ── silence detection via Web Audio ──
+  const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  const analyser = audioCtx.createAnalyser();
+  analyser.fftSize = 2048;
+  audioCtx.createMediaStreamSource(stream).connect(analyser);
+  const buf = new Float32Array(analyser.fftSize);
 
-  // True only when the user (or the silence timer) deliberately ends the
-  // session. Lets us auto-restart when Chrome ends recognition on its own.
-  let userStopped = false;
-
-  function resetSilenceTimer() {
+  function armSilenceStop() {
     clearTimeout(silenceTimer);
-    silenceTimer = setTimeout(() => {
-      userStopped = true;        // a real silence gap = intentional stop
-      recognition.stop();
-    }, SILENCE_MS);
+    silenceTimer = setTimeout(() => { if (spoke) stopRecording(); }, SILENCE_MS);
   }
 
-  recognition.onstart = () => {
+  function monitor() {
+    analyser.getFloatTimeDomainData(buf);
+    let sum = 0;
+    for (let i = 0; i < buf.length; i++) sum += buf[i] * buf[i];
+    const rms = Math.sqrt(sum / buf.length);
+    if (rms > SILENCE_THRESHOLD) {
+      spoke = true;
+      armSilenceStop();          // reset the countdown whenever we hear speech
+    }
+    rafId = requestAnimationFrame(monitor);
+  }
+
+  recorder.ondataavailable = (e) => { if (e.data.size) chunks.push(e.data); };
+
+  recorder.onstart = () => {
     AppState.isRecording = true;
-    recordBtn.classList.add("recording");
+    recordBtn.classList.add("recording");   // also drives the waveform via observer
     recordBtn.setAttribute("aria-pressed", "true");
     recordLabel.textContent = "Stop";
-    resetSilenceTimer();
+    setStageStatus("Listening…");
+    armSilenceStop();
+    monitor();
   };
 
-  recognition.onresult = (e) => {
-    resetSilenceTimer();
-    let interim = "";
-    for (let i = e.resultIndex; i < e.results.length; i++) {
-      const t = e.results[i][0].transcript;
-      if (e.results[i].isFinal) {
-        finalTranscript += t.trimEnd() + " ";
-      } else {
-        interim += t;
-      }
-    }
-    inputText.value = finalTranscript + interim;
-    charCount.textContent = `${inputText.value.length} / 2000`;
-  };
-
-  recognition.onerror = (e) => {
+  recorder.onstop = async () => {
+    cancelAnimationFrame(rafId);
     clearTimeout(silenceTimer);
-    if (e.error === "not-allowed") {
-      showToast("Microphone access denied. Please allow microphone access in your browser.", "error");
-    } else if (e.error === "no-speech") {
+    stream.getTracks().forEach((t) => t.stop());
+    audioCtx.close().catch(() => {});
+    _resetRecordBtn();
+
+    const blob = new Blob(chunks, { type: mime || "audio/webm" });
+    if (!spoke || blob.size < 1200) {
       showToast("No speech detected. Please try again.", "info");
-    } else if (e.error !== "aborted") {
-      showToast("Speech recognition error: " + e.error, "error");
+      setStageStatus("Ready to record");
+      return;
     }
-    _resetRecordBtn();
+    await transcribeBlob(blob);
   };
 
-  recognition.onend = () => {
-    // Chrome can end a `continuous` session on its own (≈60s, or a long
-    // silence). If the user hasn't actually stopped, seamlessly restart so
-    // dictation keeps going.
-    if (!userStopped && AppState.isRecording) {
-      try {
-        recognition.start();
-        return;
-      } catch (err) {
-        // start() can throw if called too quickly; fall through to reset.
-      }
-    }
-    clearTimeout(silenceTimer);
-    inputText.value = inputText.value.trimEnd();
-    charCount.textContent = `${inputText.value.length} / 2000`;
-    _resetRecordBtn();
-  };
-
-  AppState.recognition = recognition;
-  AppState.stopRecognition = () => { userStopped = true; recognition.stop(); };
-  recognition.start();
+  AppState.recorder = recorder;
+  recorder.start();
 }
 
 function stopRecording() {
-  // Use the wrapper so onend knows this was intentional (no auto-restart).
-  if (AppState.stopRecognition) AppState.stopRecognition();
-  else AppState.recognition?.stop();
+  if (AppState.recorder && AppState.recorder.state !== "inactive") {
+    AppState.recorder.stop();
+  }
+}
+
+async function transcribeBlob(blob) {
+  setStageStatus("Transcribing…");
+  setLoading(true, "Transcribing…");
+  try {
+    const res = await fetch("/api/transcribe", {
+      method: "POST",
+      headers: { "Content-Type": blob.type || "audio/webm" },
+      body: blob,
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Transcription failed");
+
+    const text = (data.text || "").trim();
+    if (!text) {
+      showToast("Couldn't make out any speech. Please try again.", "info");
+    } else {
+      // Append to whatever is already in the box.
+      const base = inputText.value.trimEnd();
+      inputText.value = (base ? base + " " : "") + text;
+      charCount.textContent = `${inputText.value.length} / 2000`;
+    }
+  } catch (err) {
+    showToast("Transcription error: " + err.message, "error");
+  } finally {
+    setLoading(false);
+    setStageStatus("Ready to record");
+  }
+}
+
+function setStageStatus(msg) {
+  const el = document.getElementById("stageStatusText");
+  if (el) el.textContent = msg;
 }
 
 function _resetRecordBtn() {
   AppState.isRecording = false;
-  AppState.recognition = null;
+  AppState.recorder = null;
   recordBtn.classList.remove("recording");
   recordBtn.setAttribute("aria-pressed", "false");
   recordLabel.textContent = "Record";

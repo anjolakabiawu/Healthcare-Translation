@@ -16,7 +16,9 @@ class TranscriptionService:
     def transcribe(self, audio_bytes: bytes) -> dict:
         model = self._get_model()
 
-        with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
+        # ffmpeg (used by faster-whisper) decodes by content, not extension,
+        # so this handles WAV, WebM/Opus (MediaRecorder), OGG, etc.
+        with tempfile.NamedTemporaryFile(suffix=".audio", delete=False) as tmp:
             tmp.write(audio_bytes)
             tmp_path = tmp.name
 
