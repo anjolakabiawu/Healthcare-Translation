@@ -88,13 +88,26 @@ recordBtn.addEventListener("click", () => {
   }
 });
 
-// Medical terms to bias the recognizer toward correct spellings
+// Medical terms to bias the recognizer toward correct spellings.
 const MEDICAL_HINTS = [
-  "CT scan", "MRI", "ECG", "hypertension", "myocardial infarction",
-  "tachycardia", "diagnosis", "prescription", "dosage", "symptom",
-  "fracture", "infection", "inflammation", "anesthesia", "antibiotic",
-  "blood pressure", "complete blood count", "fever", "nausea", "allergy",
-  "emergency", "surgery", "vaccine", "chronic", "acute",
+  // imaging / tests
+  "CT scan", "MRI", "ECG", "EKG", "X-ray", "ultrasound", "biopsy",
+  "complete blood count", "blood pressure", "blood test",
+  // conditions / symptoms
+  "hypertension", "myocardial infarction", "tachycardia", "bradycardia",
+  "arrhythmia", "diabetes", "asthma", "pneumonia", "malaria", "tuberculosis",
+  "typhoid", "cholera", "hepatitis", "meningitis", "sepsis", "anemia",
+  "edema", "jaundice", "migraine", "seizure", "stroke", "ulcer",
+  "diagnosis", "prognosis", "symptom", "syndrome", "infection",
+  "inflammation", "fracture", "fever", "nausea", "vomiting", "diarrhea",
+  "allergy", "rash", "cough", "fatigue", "dizziness",
+  // drugs / treatment
+  "prescription", "dosage", "antibiotic", "antimalarial", "analgesic",
+  "paracetamol", "ibuprofen", "amoxicillin", "metformin", "insulin",
+  "anesthesia", "vaccine", "injection", "infusion", "chemotherapy",
+  // care
+  "emergency", "surgery", "chronic", "acute", "outpatient", "inpatient",
+  "referral", "follow-up", "discharge",
 ];
 
 function startRecording() {
@@ -105,7 +118,9 @@ function startRecording() {
 
   const recognition = new SpeechRecognition();
   recognition.lang = sourceLang.value;
-  recognition.continuous = false;   // stop automatically after the speaker pauses
+  // Keep listening across natural pauses; we decide when to stop via the
+  // silence timer below (see SILENCE_MS), not after the first utterance.
+  recognition.continuous = true;
   recognition.interimResults = true;
   recognition.maxAlternatives = 1;
 
@@ -121,10 +136,20 @@ function startRecording() {
   let finalTranscript = baseText ? baseText + " " : "";
   let silenceTimer = null;
 
+  // How long to keep listening after the last detected speech before
+  // auto-stopping. Long enough to talk through natural pauses.
+  const SILENCE_MS = 7000;
+
+  // True only when the user (or the silence timer) deliberately ends the
+  // session. Lets us auto-restart when Chrome ends recognition on its own.
+  let userStopped = false;
+
   function resetSilenceTimer() {
     clearTimeout(silenceTimer);
-    // Auto-stop after 2.5 s of silence so stray corrections aren't captured
-    silenceTimer = setTimeout(() => recognition.stop(), 2500);
+    silenceTimer = setTimeout(() => {
+      userStopped = true;        // a real silence gap = intentional stop
+      recognition.stop();
+    }, SILENCE_MS);
   }
 
   recognition.onstart = () => {
@@ -163,6 +188,17 @@ function startRecording() {
   };
 
   recognition.onend = () => {
+    // Chrome can end a `continuous` session on its own (≈60s, or a long
+    // silence). If the user hasn't actually stopped, seamlessly restart so
+    // dictation keeps going.
+    if (!userStopped && AppState.isRecording) {
+      try {
+        recognition.start();
+        return;
+      } catch (err) {
+        // start() can throw if called too quickly; fall through to reset.
+      }
+    }
     clearTimeout(silenceTimer);
     inputText.value = inputText.value.trimEnd();
     charCount.textContent = `${inputText.value.length} / 2000`;
@@ -170,11 +206,14 @@ function startRecording() {
   };
 
   AppState.recognition = recognition;
+  AppState.stopRecognition = () => { userStopped = true; recognition.stop(); };
   recognition.start();
 }
 
 function stopRecording() {
-  AppState.recognition?.stop();
+  // Use the wrapper so onend knows this was intentional (no auto-restart).
+  if (AppState.stopRecognition) AppState.stopRecognition();
+  else AppState.recognition?.stop();
 }
 
 function _resetRecordBtn() {
