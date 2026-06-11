@@ -35,8 +35,11 @@ def create_app(config_name="development"):
         from .services.transcription import transcription_service
 
         def _warmup():
-            transcription_service.model_size = app.config.get("WHISPER_MODEL_SIZE", "tiny")
-            transcription_service._get_model()
+            try:
+                transcription_service.model_size = app.config.get("WHISPER_MODEL_SIZE", "tiny")
+                transcription_service._get_model()
+            except Exception as e:  # never let model warmup crash the server
+                app.logger.warning(f"Whisper warmup failed (will retry on first request): {e}")
 
         threading.Thread(target=_warmup, daemon=True).start()
 
