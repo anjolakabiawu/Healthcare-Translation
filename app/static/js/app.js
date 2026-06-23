@@ -68,6 +68,8 @@ function showToast(message, type = "info", duration = 4000) {
   toastCont.appendChild(el);
   setTimeout(() => el.remove(), duration);
 }
+// Expose for other modules (feedback.js).
+window.showToast = showToast;
 
 // ── Loading state ─────────────────────────────────────────────
 function setLoading(active, message = "Processing…") {
@@ -203,6 +205,11 @@ async function transcribeBlob(blob) {
       inputText.value = (base ? base + " " : "") + text;
       charCount.textContent = `${inputText.value.length} / 2000`;
       renderConfidence(data);
+      // Refresh OOV log + correction count from this transcription (Features 4/5).
+      if (window.OOV && window.OOV.refresh) window.OOV.refresh();
+      if (window.Feedback && data.correction_count != null) {
+        window.Feedback.setCount(data.correction_count);
+      }
     }
   } catch (err) {
     showToast("Transcription error: " + err.message, "error");

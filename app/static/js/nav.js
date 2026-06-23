@@ -15,6 +15,7 @@
   const panels = {
     translate: document.getElementById("tab-translate"),
     history: document.getElementById("tab-history"),
+    oov: document.getElementById("tab-oov"),
   };
 
   function activate(tab) {
@@ -27,6 +28,8 @@
     Object.entries(panels).forEach(([name, el]) => {
       if (el) el.hidden = name !== tab;
     });
+    // Refresh the OOV log from the server when its tab is opened.
+    if (tab === "oov" && window.OOV && window.OOV.refresh) window.OOV.refresh();
   }
 
   pills.forEach((pill) => {

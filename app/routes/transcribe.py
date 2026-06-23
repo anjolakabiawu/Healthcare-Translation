@@ -1,6 +1,8 @@
 from flask import Blueprint, request, jsonify, current_app
 from ..services.transcription import transcription_service
 from ..pronunciation.confidence import confidence_analyzer
+from ..pronunciation.oov_detector import oov_detector
+from ..feedback.correction_store import correction_store
 
 transcribe_bp = Blueprint("transcribe", __name__)
 
@@ -27,15 +29,26 @@ def transcribe():
 
     try:
         result = transcription_service.transcribe(audio_data)
+
+        # Apply confirmed human corrections to the raw transcript (Feature 4).
+        text = correction_store.apply_corrections(result["text"], result.get("language"))
+
+        # Per-word confidence scoring (Feature 3).
         analysis = confidence_analyzer.analyze(result.get("words", []))
+
+        # OOV detection + logging for this utterance (Feature 5).
+        oov_hits = oov_detector.analyze(result.get("words", []), context=text)
+
         return jsonify({
-            "text": result["text"],
+            "text": text,
             "detected_language": result["language"],
             "confidence": result["confidence"],
             "words": analysis["words"],
             "overall_confidence": analysis["overall_confidence"],
             "flagged_count": analysis["flagged_count"],
             "high_risk_count": analysis["high_risk_count"],
+            "oov_terms": oov_hits,
+            "correction_count": correction_store.count(),
         })
     except Exception as e:
         current_app.logger.error(f"Transcription error: {e}")

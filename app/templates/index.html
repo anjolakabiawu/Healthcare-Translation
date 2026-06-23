@@ -52,6 +52,11 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 3v5h5"/><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/><path d="M12 7v5l4 2"/></svg>
         <span class="pill-label-full">History</span>
       </button>
+      <button class="pill" data-tab="oov">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
+        <span class="pill-label-full">OOV Log</span>
+        <span class="pill-badge" id="oovBadge" hidden>0</span>
+      </button>
     </nav>
   </div>
 
@@ -197,6 +202,17 @@
       </section>
     </div>
 
+    <!-- ══ OOV LOG TAB (Feature 5) ════════════════════════════ -->
+    <div class="tab-panel" id="tab-oov" hidden>
+      <section class="card oov-card" aria-label="Out-of-vocabulary log">
+        <div class="history-header">
+          <h2 class="history-title">Out-of-Vocabulary Log</h2>
+          <div class="oov-stats" id="oovStats">No terms flagged this session.</div>
+        </div>
+        <div class="oov-list" id="oovList"></div>
+      </section>
+    </div>
+
   </main>
 
   <!-- Toast container -->
@@ -205,6 +221,7 @@
   <script src="{{ url_for('static', filename='js/waveform.js') }}"></script>
   <script src="{{ url_for('static', filename='js/nav.js') }}"></script>
   <script src="{{ url_for('static', filename='js/pronunciation.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/feedback.js') }}"></script>
   <script src="{{ url_for('static', filename='js/app.js') }}"></script>
 </body>
 </html>

@@ -17,6 +17,8 @@ def create_app(config_name="development"):
     from .routes.history import history_bp
     from .routes.languages import languages_bp
     from .routes.pronunciation import pronunciation_bp
+    from .routes.feedback import feedback_bp
+    from .routes.oov import oov_bp
 
     app.register_blueprint(main_bp)
     app.register_blueprint(transcribe_bp)
@@ -24,6 +26,8 @@ def create_app(config_name="development"):
     app.register_blueprint(history_bp)
     app.register_blueprint(languages_bp)
     app.register_blueprint(pronunciation_bp)
+    app.register_blueprint(feedback_bp)
+    app.register_blueprint(oov_bp)
 
     @app.route("/api/health")
     def health():
