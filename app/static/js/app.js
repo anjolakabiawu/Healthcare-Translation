@@ -202,6 +202,7 @@ async function transcribeBlob(blob) {
       const base = inputText.value.trimEnd();
       inputText.value = (base ? base + " " : "") + text;
       charCount.textContent = `${inputText.value.length} / 2000`;
+      renderConfidence(data);
     }
   } catch (err) {
     showToast("Transcription error: " + err.message, "error");
@@ -214,6 +215,35 @@ async function transcribeBlob(blob) {
 function setStageStatus(msg) {
   const el = document.getElementById("stageStatusText");
   if (el) el.textContent = msg;
+}
+
+// ── Transcript confidence (Feature 3) ─────────────────────────
+function renderConfidence(data) {
+  const card = document.getElementById("confidenceCard");
+  const badge = document.getElementById("confidenceBadge");
+  const out = document.getElementById("confidenceTranscript");
+  if (!card || !out) return;
+
+  const words = data.words || [];
+  if (!words.length) { card.hidden = true; return; }
+
+  // Overall confidence badge, coloured by band.
+  const pct = Math.round((data.overall_confidence || 0) * 100);
+  badge.textContent = `${pct}% confidence`;
+  badge.className = "confidence-badge " + (pct >= 85 ? "high" : pct >= 70 ? "mid" : "low");
+
+  // Render each word, flagged ones highlighted with a tooltip explaining why.
+  out.innerHTML = words.map((w) => {
+    const safe = escapeHtml(w.word);
+    if (!w.flagged) return safe;
+    const cls = w.flag_reason === "high-risk" ? "high-risk" : "uncertain";
+    const why = w.flag_reason === "high-risk"
+      ? `High-risk medical term — low confidence (${Math.round(w.confidence * 100)}%)`
+      : `Uncertain — low confidence (${Math.round(w.confidence * 100)}%)`;
+    return `<span class="conf-word ${cls}" title="${escapeHtml(why)}">${safe}</span>`;
+  }).join(" ");
+
+  card.hidden = false;
 }
 
 function _resetRecordBtn() {

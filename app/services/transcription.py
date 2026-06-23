@@ -23,9 +23,12 @@ class TranscriptionService:
             tmp_path = tmp.name
 
         try:
-            segments, info = model.transcribe(tmp_path, beam_size=5)
+            # word_timestamps=True makes faster-whisper attach per-word
+            # probabilities, which Feature 3 (confidence scoring) consumes.
+            segments, info = model.transcribe(tmp_path, beam_size=5, word_timestamps=True)
             segment_list = []
             full_text_parts = []
+            words = []
 
             for seg in segments:
                 segment_list.append({
@@ -34,12 +37,20 @@ class TranscriptionService:
                     "text": seg.text.strip(),
                 })
                 full_text_parts.append(seg.text.strip())
+                for w in (seg.words or []):
+                    words.append({
+                        "word": w.word.strip(),
+                        "start": round(w.start, 2),
+                        "end": round(w.end, 2),
+                        "probability": round(w.probability, 3),
+                    })
 
             return {
                 "text": " ".join(full_text_parts),
                 "language": info.language,
                 "confidence": round(info.language_probability, 3),
                 "segments": segment_list,
+                "words": words,
             }
         finally:
             os.unlink(tmp_path)

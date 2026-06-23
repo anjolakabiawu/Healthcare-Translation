@@ -619,6 +619,65 @@ mark.medical-term:hover, .medical-term:hover {
 }
 
 /* ============================================================
+   CONFIDENCE CARD (Feature 3)
+   ============================================================ */
+
+.confidence-card { padding: 18px 22px 16px; display: flex; flex-direction: column; gap: 14px; }
+.confidence-header { display: flex; align-items: center; justify-content: space-between; }
+.confidence-badge {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border-strong);
+  color: var(--ink-2);
+  font-feature-settings: "tnum";
+}
+.confidence-badge.high  { color: var(--ok);   border-color: rgba(45, 212, 191, 0.4); background: var(--ok-bg); }
+.confidence-badge.mid   { color: var(--warn); border-color: rgba(245, 158, 11, 0.4); background: var(--warn-bg); }
+.confidence-badge.low   { color: var(--bad);  border-color: rgba(239, 68, 68, 0.4);  background: var(--bad-bg); }
+
+.confidence-transcript {
+  font-size: 15px;
+  line-height: 1.9;
+  color: var(--ink);
+  word-break: break-word;
+}
+.conf-word { border-radius: 3px; padding: 1px 2px; transition: background var(--t-fast); }
+.conf-word.uncertain {
+  background: var(--warn-bg);
+  box-shadow: inset 0 -2px 0 var(--warn);
+  cursor: help;
+}
+.conf-word.high-risk {
+  background: var(--bad-bg);
+  box-shadow: inset 0 -2px 0 var(--bad);
+  color: var(--ink);
+  cursor: help;
+}
+
+.confidence-legend {
+  display: flex;
+  gap: 18px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+.legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.legend-swatch { width: 12px; height: 12px; border-radius: 3px; }
+.swatch-uncertain { background: var(--warn-bg); box-shadow: inset 0 -2px 0 var(--warn); }
+.swatch-risk      { background: var(--bad-bg);  box-shadow: inset 0 -2px 0 var(--bad); }
+
+/* ============================================================
    HISTORY
    ============================================================ */
 

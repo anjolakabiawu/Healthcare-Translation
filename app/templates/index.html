@@ -133,6 +133,19 @@
         </div>
       </section>
 
+      <!-- Transcript confidence card (Feature 3) -->
+      <section class="card confidence-card" id="confidenceCard" aria-label="Transcript confidence" hidden>
+        <div class="confidence-header">
+          <span class="card-label">Transcript Confidence</span>
+          <span class="confidence-badge" id="confidenceBadge">—</span>
+        </div>
+        <div class="confidence-transcript" id="confidenceTranscript" aria-live="polite"></div>
+        <div class="confidence-legend">
+          <span class="legend-item"><span class="legend-swatch swatch-uncertain"></span>Uncertain</span>
+          <span class="legend-item"><span class="legend-swatch swatch-risk"></span>High-risk medical</span>
+        </div>
+      </section>
+
       <!-- Loading indicator -->
       <div class="loading-bar" id="loadingBar" aria-live="polite" aria-busy="false" style="display:none">
         <div class="loading-spinner"></div>

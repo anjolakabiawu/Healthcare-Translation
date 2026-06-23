@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify, current_app
 from ..services.transcription import transcription_service
+from ..pronunciation.confidence import confidence_analyzer
 
 transcribe_bp = Blueprint("transcribe", __name__)
 
@@ -26,10 +27,15 @@ def transcribe():
 
     try:
         result = transcription_service.transcribe(audio_data)
+        analysis = confidence_analyzer.analyze(result.get("words", []))
         return jsonify({
             "text": result["text"],
             "detected_language": result["language"],
             "confidence": result["confidence"],
+            "words": analysis["words"],
+            "overall_confidence": analysis["overall_confidence"],
+            "flagged_count": analysis["flagged_count"],
+            "high_risk_count": analysis["high_risk_count"],
         })
     except Exception as e:
         current_app.logger.error(f"Transcription error: {e}")
