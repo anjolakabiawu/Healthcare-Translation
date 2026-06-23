@@ -60,7 +60,7 @@ class ConfidenceAnalyzer:
             return True
         return False
 
-    def analyze_word(self, word: str, confidence: float) -> dict:
+    def analyze_word(self, word: str, confidence: float, is_oov: bool = False) -> dict:
         conf = round(float(confidence), 3)
         medical = self.is_medical(word)
         flagged = False
@@ -69,6 +69,11 @@ class ConfidenceAnalyzer:
         if medical and conf < self.medical:
             flagged = True
             reason = "high-risk"          # medical term below the higher bar
+        elif is_oov:
+            # Out-of-vocabulary word (e.g. a misheard drug name the model was
+            # nonetheless confident about) — flag it even at high confidence.
+            flagged = True
+            reason = "oov"
         elif conf < self.low:
             flagged = True
             reason = "uncertain"
@@ -77,18 +82,26 @@ class ConfidenceAnalyzer:
             "word": word,
             "confidence": conf,
             "is_medical": medical,
+            "is_oov": is_oov,
             "flagged": flagged,
             "flag_reason": reason,
         }
 
-    def analyze(self, words: list[dict]) -> dict:
+    def analyze(self, words: list[dict], oov_detector=None) -> dict:
         """
         `words` is a list of {"word": str, "probability": float} dicts
         (as produced by the transcription service from faster-whisper).
-        Returns the per-word analysis plus aggregate stats.
+        If an `oov_detector` is passed, out-of-vocabulary words are flagged
+        too (so confident-but-wrong non-words still surface). Returns the
+        per-word analysis plus aggregate stats.
         """
-        analyzed = [self.analyze_word(w.get("word", ""), w.get("probability", 1.0))
-                    for w in words]
+        analyzed = []
+        for w in words:
+            word = w.get("word", "")
+            prob = w.get("probability", 1.0)
+            is_oov = bool(oov_detector and oov_detector.detect_word(word, prob)) \
+                if oov_detector else False
+            analyzed.append(self.analyze_word(word, prob, is_oov=is_oov))
 
         confs = [w["confidence"] for w in analyzed]
         overall = round(sum(confs) / len(confs), 3) if confs else 0.0

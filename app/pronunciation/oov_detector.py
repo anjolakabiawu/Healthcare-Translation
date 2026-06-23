@@ -70,8 +70,15 @@ class OOVDetector:
     def _build_wordlist() -> set[str]:
         words = set(_COMMON_WORDS)
         try:  # enrich with NLTK if the corpus happens to be present
-            from nltk.corpus import words as nltk_words
-            words |= {w.lower() for w in nltk_words.words()}
+            import nltk
+            try:
+                from nltk.corpus import words as nltk_words
+                words |= {w.lower() for w in nltk_words.words()}
+            except LookupError:
+                # corpus not present yet — download it once, then load
+                nltk.download("words", quiet=True)
+                from nltk.corpus import words as nltk_words
+                words |= {w.lower() for w in nltk_words.words()}
         except Exception:
             pass  # bundled set is enough as a fallback
         return words
@@ -90,6 +97,21 @@ class OOVDetector:
             return True
         return False
 
+    def _known_word(self, norm: str) -> bool:
+        """Is this a known word? Tries the word as-is, then common inflections
+        (drugs→drug, recommended→recommend) since the wordlist stores base forms."""
+        if norm in self._words or norm in self._medical:
+            return True
+        for suf in ("s", "es", "ed", "d", "ing", "ly", "er"):
+            if norm.endswith(suf):
+                stem = norm[: -len(suf)]
+                if len(stem) >= 3 and (stem in self._words or stem in self._medical):
+                    return True
+        # handle doubled-consonant + ing/ed (e.g. "stopped" -> "stop")
+        if len(norm) > 4 and norm[-3] == norm[-4] and norm[:-4] in self._words:
+            return True
+        return False
+
     def detect_word(self, word: str, confidence: float = 1.0) -> dict | None:
         """Return an OOV record if `word` is flagged, else None."""
         norm = self._normalize(word)
@@ -98,7 +120,7 @@ class OOVDetector:
 
         signals = []
         low_conf = confidence < OOV_CONFIDENCE
-        not_common = norm not in self._words and norm not in self._medical
+        not_common = not self._known_word(norm)
         suffix_hit = any(norm.endswith(suf) for suf in DRUG_SUFFIXES)
         pattern_hit = self._matches_pattern(word)
 
@@ -109,8 +131,14 @@ class OOVDetector:
         if pattern_hit:
             signals.append("pattern_match")
 
-        # Flag when >=2 signals fire, OR the strong drug-suffix cue alone.
-        flagged = len(signals) >= 2 or suffix_hit
+        # Flag when:
+        #   - >=2 signals fire, OR
+        #   - the strong drug-suffix cue alone, OR
+        #   - a reasonably long word (>=5 chars) isn't a known word at all.
+        #     Real words rarely fail the wordlist; a long unknown token is most
+        #     often a misheard term ("malera") or a name/brand worth reviewing.
+        long_nonword = not_common and len(norm) >= 5
+        flagged = len(signals) >= 2 or suffix_hit or long_nonword
         if not flagged:
             return None
 

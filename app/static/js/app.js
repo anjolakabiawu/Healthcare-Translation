@@ -243,9 +243,12 @@ function renderConfidence(data) {
   out.innerHTML = words.map((w) => {
     const safe = escapeHtml(w.word);
     if (!w.flagged) return safe;
-    const cls = w.flag_reason === "high-risk" ? "high-risk" : "uncertain";
+    const cls = w.flag_reason === "high-risk" ? "high-risk"
+              : w.flag_reason === "oov" ? "oov" : "uncertain";
     const why = w.flag_reason === "high-risk"
       ? `High-risk medical term — low confidence (${Math.round(w.confidence * 100)}%)`
+      : w.flag_reason === "oov"
+      ? `Out-of-vocabulary — likely misheard or an unusual term`
       : `Uncertain — low confidence (${Math.round(w.confidence * 100)}%)`;
     return `<span class="conf-word ${cls}" title="${escapeHtml(why)}">${safe}</span>`;
   }).join(" ");

@@ -33,8 +33,9 @@ def transcribe():
         # Apply confirmed human corrections to the raw transcript (Feature 4).
         text = correction_store.apply_corrections(result["text"], result.get("language"))
 
-        # Per-word confidence scoring (Feature 3).
-        analysis = confidence_analyzer.analyze(result.get("words", []))
+        # Per-word confidence scoring (Feature 3), with OOV words also flagged
+        # so confident-but-wrong non-words (misheard drug names) still surface.
+        analysis = confidence_analyzer.analyze(result.get("words", []), oov_detector)
 
         # OOV detection + logging for this utterance (Feature 5).
         oov_hits = oov_detector.analyze(result.get("words", []), context=text)
