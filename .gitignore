@@ -15,3 +15,7 @@ data/corrections.db
 
 # Throwaway theme reference (read-only; safe to delete)
 dashboard/
+
+# Personal job-prep notes — keep local, not in the public repo
+APP_WALKTHROUGH.md
+VIDEO_SCRIPT.md
