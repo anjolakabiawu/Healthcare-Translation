@@ -13,6 +13,16 @@ class TranscriptionService:
             self._model = WhisperModel(self.model_size, device="cpu", compute_type="int8")
         return self._model
 
+    # Priming Whisper with domain vocabulary biases it toward medical terms
+    # (e.g. "malaria", "typhoid", "atorvastatin") that small models otherwise
+    # mishear as common words. This is an initial_prompt, not a hard constraint.
+    MEDICAL_PROMPT = (
+        "Clinical consultation. Terms may include: malaria, typhoid, pneumonia, "
+        "hypertension, diabetes, atorvastatin, metformin, ibuprofen, paracetamol, "
+        "amoxicillin, tuberculosis, hepatitis, diagnosis, prescription, dosage, "
+        "symptoms, fever, nausea, antibiotics."
+    )
+
     def transcribe(self, audio_bytes: bytes) -> dict:
         model = self._get_model()
 
@@ -23,9 +33,15 @@ class TranscriptionService:
             tmp_path = tmp.name
 
         try:
-            # word_timestamps=True makes faster-whisper attach per-word
-            # probabilities, which Feature 3 (confidence scoring) consumes.
-            segments, info = model.transcribe(tmp_path, beam_size=5, word_timestamps=True)
+            # word_timestamps=True attaches per-word probabilities (Feature 3).
+            # initial_prompt biases decoding toward medical vocabulary.
+            segments, info = model.transcribe(
+                tmp_path,
+                beam_size=5,
+                word_timestamps=True,
+                initial_prompt=self.MEDICAL_PROMPT,
+                condition_on_previous_text=True,
+            )
             segment_list = []
             full_text_parts = []
             words = []

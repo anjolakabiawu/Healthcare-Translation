@@ -51,12 +51,18 @@
     input.className = "conf-edit";
     input.value = original;
     input.setAttribute("aria-label", "Correct term");
+    // size the field to its content so longer corrections fit
+    input.size = Math.max(original.length + 2, 6);
     word.textContent = "";
     word.appendChild(input);
     input.focus();
     input.select();
 
+    // Guard so Enter + the resulting blur don't both run finish().
+    let done = false;
     function finish(commit) {
+      if (done) return;
+      done = true;
       const corrected = input.value.trim();
       if (commit && corrected && corrected !== original) {
         saveCorrection(word, original, corrected);
@@ -65,8 +71,9 @@
       }
     }
     input.addEventListener("keydown", (ev) => {
+      ev.stopPropagation();
       if (ev.key === "Enter") { ev.preventDefault(); finish(true); }
-      else if (ev.key === "Escape") { finish(false); }
+      else if (ev.key === "Escape") { ev.preventDefault(); finish(false); }
     });
     input.addEventListener("blur", () => finish(true));
   }

@@ -15,9 +15,11 @@ class DevelopmentConfig(Config):
 
 class ProductionConfig(Config):
     DEBUG = False
-    # Default to the lightest Whisper model in prod to keep hosting RAM/cost
-    # down. Override per-deploy by setting the WHISPER_MODEL_SIZE env var.
-    WHISPER_MODEL_SIZE = os.getenv("WHISPER_MODEL_SIZE", "tiny")
+    # "small" is markedly more accurate on medical terms than tiny/base and
+    # fits comfortably in the Hugging Face Spaces free tier (16 GB RAM).
+    # Override per-deploy with the WHISPER_MODEL_SIZE env var
+    # (tiny | base | small | medium) — smaller = faster + less memory.
+    WHISPER_MODEL_SIZE = os.getenv("WHISPER_MODEL_SIZE", "small")
 
 
 class TestingConfig(Config):

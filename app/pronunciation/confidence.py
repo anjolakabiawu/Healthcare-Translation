@@ -27,7 +27,10 @@ if _ROOT not in sys.path:
 
 from data.medical_dictionary import MEDICAL_DICT  # noqa: E402
 
-LOW_CONFIDENCE = 0.75       # below this, any word is "uncertain"
+# Below this, any word is "uncertain". Kept fairly low so ordinary words that
+# a decent model scores in the 0.6–0.8 range don't all light up; the point is
+# to surface the genuinely shaky words, not most of the sentence.
+LOW_CONFIDENCE = 0.55
 MEDICAL_CONFIDENCE = 0.85   # below this, a medical word is "high-risk"
 
 # Build a lowercase set of dictionary terms once for fast membership tests.
