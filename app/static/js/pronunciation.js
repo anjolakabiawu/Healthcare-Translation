@@ -65,11 +65,12 @@
 
   function speak(p) {
     if (!("speechSynthesis" in window)) return;
-    // Speak the readable guide (dashes → spaces) so TTS approximates syllables.
-    const phrase = (p.simplified || p.term || "").replace(/-/g, " ");
+    // Speak the actual word so the TTS engine pronounces it naturally — NOT
+    // the dashed guide ("ay-TOR-va...") which makes it read syllable-by-syllable.
+    const phrase = (p.term || p.simplified || "").replace(/-/g, "");
     const utt = new SpeechSynthesisUtterance(phrase);
     utt.lang = "en-US";
-    utt.rate = 0.85;
+    utt.rate = 0.8;   // slightly slow for clarity on long medical words
     speechSynthesis.cancel();
     speechSynthesis.speak(utt);
   }
